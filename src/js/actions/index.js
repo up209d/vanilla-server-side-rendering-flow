@@ -1,5 +1,7 @@
 import * as ui from './uiActions';
+import * as auth from './authActions';
 
 export default {
-  ui
+  ...ui,
+  ...auth
 }

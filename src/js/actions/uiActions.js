@@ -1,1 +1,51 @@
 import actionTypes from '../actionTypes';
+
+export function alertWarning(message) {
+  return {
+    type: actionTypes.ALERT_WARNING,
+    payload : {
+      type: 'warning',
+      message
+    }
+  }
+}
+
+export function alertSuccess(message) {
+  return {
+    type: actionTypes.ALERT_SUCCESS,
+    payload : {
+      type: 'success',
+      message
+    }
+  }
+}
+
+export function alertClear() {
+  return {
+    type: actionTypes.ALERT_CLEAR
+  }
+}
+
+export function updateBreakpoint(payload) {
+  return {
+    type: actionTypes.UPDATE_BREAKPOINT,
+    payload
+  }
+}
+
+export function isBreakpointUp(breakpoint) {
+  let ref = ['xs','sm','md','lg','xl'];
+  return (dispatch,getState) => {
+    let currentState = getState();
+    return ref.indexOf(breakpoint) <= ref.indexOf(currentState.ui.breakpoint);
+  }
+}
+
+export function isBreakpointDown(breakpoint) {
+  let ref = ['xs','sm','md','lg','xl'];
+  return (dispatch,getState) => {
+    let currentState = getState();
+    return ref.indexOf(breakpoint) >= ref.indexOf(currentState.ui.breakpoint);
+  }
+}
+

@@ -1,0 +1,23 @@
+$font-base-size: 16px;
+@function toRem($px) {
+  @return ($px/$font-base-size) * 1rem;
+}
+
+html,body {
+  font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, Tahoma, sans-serif;
+  font-weight: 300;
+  font-size: toRem(16px);
+  background: #1e3c72;  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to right, #2a5298, #1e3c72);  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to right, #2a5298, #1e3c72); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+
+.app-root {
+  min-height: calc(100vh - 16px);
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  align-items: stretch;
+  background-color: white;
+  margin: 8px;
+}

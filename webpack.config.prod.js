@@ -7,24 +7,18 @@ import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import HTMLWebpackPlugin from 'html-webpack-plugin';
 import AddAssetHtmlPlugin from 'add-asset-html-webpack-plugin';
 import CopyWebpackPlugin from 'copy-webpack-plugin';
-import SpeedMeasurePlugin from 'speed-measure-webpack-plugin';
 
 const webpackConfig = {
-  devtool: 'eval',
-  mode: 'development',
+  devtool: false,
+  mode: 'production',
   performance: {
     hints: false
   },
   cache: true,
   externals: {},
-  watch: true,
-  watchOptions: {
-    ignored: /(node_modules|\.log$)/
-  },
+  watch: false,
   entry: {
     appBundle: [
-      'webpack-hot-middleware/client?reload=true',
-      'react-hot-loader/patch',
       './client/client.js'
     ],
     vendorBundle: [
@@ -33,8 +27,6 @@ const webpackConfig = {
     ]
   },
   plugins: [
-    new ResetRequireCache(),
-    new webpack.HotModuleReplacementPlugin(),
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: JSON.stringify('development'),
@@ -56,7 +48,12 @@ const webpackConfig = {
       hash: true, // add ?[build hash] to serving files to avoid caching
       // !!! IMPORTANT !!!
       favicon: './src/assets/images/favicon.ico',
-      template: './src/index.html'
+      template: './src/index.html',
+      minify: {
+        collapseWhitespace: true,
+        minifyCSS: true,
+        minifyJS: true
+      }
     }),
     // Copy Extras Files
     new CopyWebpackPlugin([
@@ -176,9 +173,9 @@ const webpackConfig = {
               {
                 loader: 'style-loader'
               },
-              // {
-              //   loader: MiniCssExtractPlugin.loader,
-              // },
+              {
+                loader: MiniCssExtractPlugin.loader,
+              },
               {
                 loader: 'css-loader',
                 options: {
@@ -314,22 +311,4 @@ const webpackConfig = {
   }
 };
 
-function ResetRequireCache(options) {
-  // Do smt with options object here
-};
-
-ResetRequireCache.prototype.apply = function (compiler) {
-  compiler.plugin('done', function (stats) {
-    console.log('Global Context: ',compiler.options.context);
-    // Clear the cache if of all file in ./src folder
-    stats.compilation.fileDependencies.forEach(dependency => {
-      if (dependency.match(/(\/src\/)(.*)\.(jsx?)$/) !== null) {
-        console.log('------- Clear Cache: ', dependency);
-        delete require.cache[dependency];
-      }
-    });
-  });
-};
-
-const SMP = new SpeedMeasurePlugin();
 export default webpackConfig;

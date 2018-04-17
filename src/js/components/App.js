@@ -1,28 +1,21 @@
-if (process.env.BROWSER) {
-  require('scss/app.scss');
-}
-
 import React from 'react';
+
+import {
+  Grid,
+  CssBaseline,
+  MuiThemeProvider,
+  Button
+} from 'material-ui';
 
 import {
   withRouter,
   Switch,
   Route
 } from 'react-router-dom';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import actions from 'js/actions';
 
 import routeConfig from 'js/routeConfig';
 
-const mapStateToProps = state => ({
-  auth: state.auth,
-  ui: state.ui
-});
-
-const mapDispatchToProps = dispatch => ({
-  ...bindActionCreators(actions)
-});
+import utils from 'js/utils';
 
 class ScrollToTop extends React.Component {
   componentDidUpdate(prevProps) {
@@ -36,31 +29,46 @@ class ScrollToTop extends React.Component {
 }
 
 class App extends React.Component {
-  constructor(props, context) {
-    super(props);
+  state = {};
+
+  static fetchDataToProps() {
+    // Fetch Data Here
+  }
+
+  static getDerivedStateFromProps(nextProps,prevState) {
+    return prevState;
   }
 
   componentDidMount() {
     setTimeout(function(){
       process.env.BROWSER && document.getElementById('preload').setAttribute('class','hidden');
     },250);
+    window.app = this;
   }
 
   render() {
     const { props } = this;
     return (
-      <div>
-        <h1>Hello World</h1>
-        <Switch>
-          {
-            routeConfig(props.auth.isLoggedIn).map(route => (
-              <Route key={route.path} path={route.path} component={route.component}/>
-            ))
-          }
-        </Switch>
-      </div>
+      <MuiThemeProvider theme={props.ui.theme}>
+        <div className={'app-root'}>
+          <CssBaseline/>
+          <ScrollToTop/>
+          <Switch>
+            {
+              routeConfig(props.auth.isLoggedIn).map(route => (
+                <Route key={route.path} path={route.path} component={route.component}/>
+              ))
+            }
+          </Switch>
+        </div>
+      </MuiThemeProvider>
     )
   }
 }
 
-export default withRouter(connect(mapStateToProps,mapDispatchToProps)(App));
+// const ConnectedAppWithRouter = withRouter(connect(mapStateToProps,mapDispatchToProps)(App));
+// ConnectedAppWithRouter.fetchDataToProps = App.fetchDataToProps;
+// //
+// // console.dir(ConnectedAppWithRouter);
+
+export default withRouter(utils.getConnectAllStateActions(App));

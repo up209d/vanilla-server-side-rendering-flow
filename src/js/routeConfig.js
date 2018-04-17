@@ -1,6 +1,8 @@
 import React from 'react';
 import { Redirect } from 'react-router-dom';
 
+import actions from 'js/actions';
+
 import Login from 'js/components/pages/Login/Login';
 import Home from 'js/components/pages/Home/Home';
 
@@ -9,8 +11,19 @@ const RedirectToLogin = () => (
 );
 
 const RedirectToHome = () => (
-  <Redirect to={'/'}/>
+  <Redirect to={'/home'}/>
 );
+
+// Just For Test
+const makeTempData = (title) => {
+  return new Promise((resolve)=>{
+    setTimeout(()=>{
+      resolve({
+        page: title
+      })
+    },1000);
+  });
+};
 
 // 2 Set of Routes for userLoggedIn and userNotLoggedIn
 
@@ -22,16 +35,16 @@ const routeConfig = (isLoggedIn) => {
       loadData: () => {
         // Fetch Data Here
         console.log('Warning: User is NOT logged in!!!');
-        return {};
+        return makeTempData('Login Page');
       }
     },
     {
       path: '/',
-      component: Login,
+      component: RedirectToLogin,
       loadData: () => {
         // Fetch Data Here
-        console.log('Warning: User is NOT logged in!!!');
-        return {};
+        console.log('Redirect to Login!!!');
+        return makeTempData('Redirect To Login');
       }
     }
   ] : [
@@ -41,7 +54,16 @@ const routeConfig = (isLoggedIn) => {
       loadData: () => {
         // Fetch Data Here
         console.log('Success: User is logged in!!!');
-        return {};
+        return makeTempData('Home Page');
+      }
+    },
+    {
+      path: '/login',
+      component: RedirectToHome,
+      loadData: () => {
+        // Fetch Data Here
+        console.log('Redirect to Home!!!');
+        return makeTempData('Redirect To Home');
       }
     },
     {
@@ -49,8 +71,8 @@ const routeConfig = (isLoggedIn) => {
       component: Home,
       loadData: () => {
         // Fetch Data Here
-        console.log('Success: User is logged in!!!');
-        return {};
+        console.log('Redirect to Home!!!');
+        return makeTempData('Redirect To Home');
       }
     }
   ]

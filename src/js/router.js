@@ -4,6 +4,8 @@ import { Provider } from 'react-redux';
 import { HashRouter, StaticRouter } from 'react-router-dom';
 import { ConnectedRouter } from 'react-router-redux';
 
+import { JssProvider, jss } from 'react-jss';
+
 import basename from 'base.config';
 import customHistory from './history';
 
@@ -12,7 +14,9 @@ import App from './components/App';
 export const ClientRouter = props => (
   <Provider store={props.store}>
     <ConnectedRouter history={customHistory}>
-      <App/>
+      <JssProvider jss={jss} generateClassName={props.generateClassName}>
+        <App/>
+      </JssProvider>
     </ConnectedRouter>
   </Provider>
 );
@@ -31,7 +35,9 @@ export const AppHashRouter = (props) => {
 export const ServerRouter = props => (
   <Provider store={props.store}>
     <StaticRouter basename={basename} location={props.location} context={props.context}>
-      <App/>
+      <JssProvider jss={jss} registry={props.registry} generateClassName={props.generateClassName}>
+        <App/>
+      </JssProvider>
     </StaticRouter>
   </Provider>
 );
