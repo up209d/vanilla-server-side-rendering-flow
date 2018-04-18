@@ -324,7 +324,7 @@ ResetRequireCache.prototype.apply = function (compiler) {
     // Clear the cache if of all file in ./src folder
     stats.compilation.fileDependencies.forEach(dependency => {
       if (dependency.match(/(\/src\/)(.*)\.(jsx?)$/) !== null) {
-        console.log('------- Clear Cache: ', dependency);
+        console.log('- Clear Cache - : ', dependency);
         delete require.cache[dependency];
       }
     });

@@ -6,74 +6,42 @@ import actions from 'js/actions';
 import Login from 'js/components/pages/Login/Login';
 import Home from 'js/components/pages/Home/Home';
 
-const RedirectToLogin = () => (
+export const RedirectToLogin = () => (
   <Redirect to={'/login'}/>
 );
 
-const RedirectToHome = () => (
+export const RedirectToHome = () => (
   <Redirect to={'/home'}/>
 );
 
-// Just For Test
-const makeTempData = (title) => {
-  return new Promise((resolve)=>{
-    setTimeout(()=>{
-      resolve({
-        page: title
-      })
-    },1000);
-  });
-};
-
 // 2 Set of Routes for userLoggedIn and userNotLoggedIn
-
 const routeConfig = (isLoggedIn) => {
   return !isLoggedIn ? [
     {
       path: '/login',
       component: Login,
-      loadData: () => {
-        // Fetch Data Here
-        console.log('Warning: User is NOT logged in!!!');
-        return makeTempData('Login Page');
-      }
+      loadData: actions.getData.bind(null,'DATA_FOR_LOGIN')
     },
     {
       path: '/',
-      component: RedirectToLogin,
-      loadData: () => {
-        // Fetch Data Here
-        console.log('Redirect to Login!!!');
-        return makeTempData('Redirect To Login');
-      }
+      component: Login,
+      loadData: actions.getData.bind(null,'DATA_FOR_LOGIN')
     }
   ] : [
     {
       path: '/home',
       component: Home,
-      loadData: () => {
-        // Fetch Data Here
-        console.log('Success: User is logged in!!!');
-        return makeTempData('Home Page');
-      }
+      loadData: actions.getData.bind(null,'DATA_FOR_HOME')
     },
     {
       path: '/login',
-      component: RedirectToHome,
-      loadData: () => {
-        // Fetch Data Here
-        console.log('Redirect to Home!!!');
-        return makeTempData('Redirect To Home');
-      }
+      component: Home,
+      loadData: actions.getData.bind(null,'DATA_FOR_HOME')
     },
     {
       path: '/',
       component: Home,
-      loadData: () => {
-        // Fetch Data Here
-        console.log('Redirect to Home!!!');
-        return makeTempData('Redirect To Home');
-      }
+      loadData: actions.getData.bind(null,'DATA_FOR_HOME')
     }
   ]
 };

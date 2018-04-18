@@ -11,15 +11,27 @@ import customHistory from './history';
 
 import App from './components/App';
 
-export const ClientRouter = props => (
-  <Provider store={props.store}>
-    <ConnectedRouter history={customHistory}>
-      <JssProvider jss={jss} generateClassName={props.generateClassName}>
-        <App/>
-      </JssProvider>
-    </ConnectedRouter>
-  </Provider>
-);
+const createGenerateClassName = () => {
+  let counter = 0;
+  return (rule, sheet) => {
+    counter++;
+    console.log(counter);
+    return `custom--${rule.key}-${counter}`
+  }
+};
+
+
+export const ClientRouter = props => {
+  return (
+    <Provider store={props.store}>
+      <ConnectedRouter history={customHistory}>
+        <JssProvider jss={jss} generateClassName={createGenerateClassName()}>
+          <App/>
+        </JssProvider>
+      </ConnectedRouter>
+    </Provider>
+  );
+};
 
 // Client Side Static App
 export const AppHashRouter = (props) => {
@@ -32,12 +44,14 @@ export const AppHashRouter = (props) => {
   )
 };
 
-export const ServerRouter = props => (
-  <Provider store={props.store}>
-    <StaticRouter basename={basename} location={props.location} context={props.context}>
-      <JssProvider jss={jss} registry={props.registry} generateClassName={props.generateClassName}>
-        <App/>
-      </JssProvider>
-    </StaticRouter>
-  </Provider>
-);
+export const ServerRouter = props => {
+  return (
+    <Provider store={props.store}>
+      <StaticRouter basename={basename} location={props.location} context={props.context}>
+        <JssProvider jss={jss} registry={props.registry} generateClassName={createGenerateClassName()}>
+          <App/>
+        </JssProvider>
+      </StaticRouter>
+    </Provider>
+  );
+};

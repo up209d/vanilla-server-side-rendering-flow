@@ -10,7 +10,8 @@ import {
 import {
   withRouter,
   Switch,
-  Route
+  Route,
+  matchPath
 } from 'react-router-dom';
 
 import routeConfig from 'js/routeConfig';
@@ -29,14 +30,24 @@ class ScrollToTop extends React.Component {
 }
 
 class App extends React.Component {
-  state = {};
 
-  static fetchDataToProps() {
-    // Fetch Data Here
-  }
+  componentWillReceiveProps(nextProps) {
+    // When Route Component is changed, we shall call loadData from that changed Route again
+    const { props } = this;
+    // Data calling for Client side
+    const currentRoute = routeConfig(props.auth.isLoggedIn).find(route => {
+      return matchPath(props.location.pathname, route);
+    });
+    const nextRoute = routeConfig(nextProps.auth.isLoggedIn).find(route => {
+      return matchPath(nextProps.location.pathname, route);
+    });
 
-  static getDerivedStateFromProps(nextProps,prevState) {
-    return prevState;
+    if (currentRoute.component !== nextRoute.component) {
+      // Beware of JWT, if it made with 'notBefore'
+      // And this dispatch call in the time JWT is not ready to work
+      // Thus, this request wont work as well
+      nextProps.storeDispatch(nextRoute.loadData())
+    }
   }
 
   componentDidMount() {
@@ -44,6 +55,7 @@ class App extends React.Component {
       process.env.BROWSER && document.getElementById('preload').setAttribute('class','hidden');
     },250);
     window.app = this;
+    window.axios = require('axios');
   }
 
   render() {
@@ -65,10 +77,5 @@ class App extends React.Component {
     )
   }
 }
-
-// const ConnectedAppWithRouter = withRouter(connect(mapStateToProps,mapDispatchToProps)(App));
-// ConnectedAppWithRouter.fetchDataToProps = App.fetchDataToProps;
-// //
-// // console.dir(ConnectedAppWithRouter);
 
 export default withRouter(utils.getConnectAllStateActions(App));

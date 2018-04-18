@@ -1,6 +1,6 @@
+import * as uiActions from './uiActions';
 import actionTypes from 'js/actionTypes';
 import utils from 'js/utils';
-import * as uiActions from './uiActions';
 
 function userLoginRequest(payload) {
   return {
@@ -68,7 +68,7 @@ function userCheckFailure(payload) {
 export function userLogin(user,pwd) {
   return (dispatch,getState) => {
     const state = getState();
-    const request = utils.createFetch(state.auth.cookie)({
+    const request = utils.createFetch()({
       url: '/auth',
       contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
       method: 'POST',
@@ -78,10 +78,19 @@ export function userLogin(user,pwd) {
       }
     });
     dispatch(userLoginRequest());
+
+
     request.then(res => {
-      console.log('Logged In!!!');
-      dispatch(userLoginSuccess());
-      dispatch(uiActions.alertSuccess('User is logged in successfully!!!'));
+      // !!! IMPORTANT !!!
+      // JWT is created but not ready to use in 2 second, // See /authentication.js
+      // We have to deffer this dispatch otherwise the request wont work
+      setTimeout(()=>{
+        console.log('Logged In!!!');
+        dispatch(userLoginSuccess({
+          ...res.data
+        }));
+        dispatch(uiActions.alertClear());
+      },2000);
     }).catch(err => {
       console.log('Not Logged In!!!',err);
       dispatch(userLoginFailure());
@@ -95,15 +104,40 @@ export function userLogin(user,pwd) {
 export function userCheck() {
   return (dispatch,getState) => {
     const state = getState();
-    const request = utils.createFetch(state.auth.cookie)({
+    const request = utils.createFetch(state.auth)({
       url: '/check',
       method: 'GET'
     });
     dispatch(userCheckRequest());
     request.then(res => {
-      dispatch(userCheckSuccess());
+      dispatch(userCheckSuccess({
+        ...res.data
+      }));
     }).catch(err => {
       dispatch(userCheckFailure());
+    });
+
+    return request;
+  }
+}
+
+
+export function userLogout() {
+  return (dispatch,getState) => {
+    const state = getState();
+    const request = utils.createFetch(state.auth)({
+      url: '/logout',
+      method: 'GET'
+    });
+    dispatch(userLogoutRequest());
+    request.then(res => {
+      dispatch(userLogoutSuccess({
+        ...res.data
+      }));
+      dispatch(uiActions.alertSuccess('User is logged out successfully!!!'));
+    }).catch(err => {
+      dispatch(userLogoutFailure());
+      dispatch(uiActions.alertClear());
     });
 
     return request;

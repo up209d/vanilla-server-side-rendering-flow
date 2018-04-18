@@ -11,22 +11,12 @@ import {
 
 import utils from 'js/utils';
 
-const mapStateToProps = state => ({
-  auth: state.auth,
-  ui: state.ui
-});
-
-const mapDispatchToProps = dispatch => ({
-  ...bindActionCreators(actions,dispatch)
-});
-
-
 const style = theme => ({
   container: {}
 });
 
 class Login extends React.Component{
-  handSubmit = e => {
+  handleSubmit = e => {
     e.preventDefault();
     this.props.userLogin(this.username.value,this.password.value);
   };
@@ -42,7 +32,7 @@ class Login extends React.Component{
               <Typography align={'center'} variant={'title'} color={'secondary'}>{props.ui.alert.message}</Typography>
             )
           }
-          <form onSubmit={this.handSubmit}>
+          <form onSubmit={this.handleSubmit}>
             <FormControl fullWidth noValidate autoComplete={'off'}>
               <TextField
                 required

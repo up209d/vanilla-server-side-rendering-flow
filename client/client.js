@@ -8,7 +8,8 @@ let ClientRouter = require('js/router').ClientRouter;
 
 import storeGenerator from 'js/store';
 const store = storeGenerator({
-  auth: __USER__ || undefined
+  auth: __USER__ || undefined,
+  data: __DATA__ || undefined
 });
 
 // React
@@ -18,14 +19,23 @@ import { AppContainer, hot, setConfig } from 'react-hot-loader';
 setConfig({ logLevel: 'debug' });
 
 // Material UI
-const createGenerateClassName = require('material-ui/styles').createGenerateClassName;
-const generateClassName = createGenerateClassName();
+// const createGenerateClassName = require('material-ui/styles').createGenerateClassName;
+// const createGenerateClassName = () => {
+//   let counter = 0;
+//   return (rule, sheet) => {
+//     console.log(sheet);
+//     counter++;
+//     console.log(counter);
+//     return `custom--${rule.key}-${counter}`
+//   }
+// };
+// let generateClassName = createGenerateClassName();
 
 // RENDER CLIENT DOM
 const DOMRenderer = (Component) => {
   ReactDOM.hydrate(
     <AppContainer warnings={false}>
-      <Component store={store} generateClassName={generateClassName}/>
+      <Component store={store}/>
     </AppContainer>
     ,document.getElementById('root'),()=>{
       // When all DOM are rendered we shall removed the Sever-side MUI CSS here

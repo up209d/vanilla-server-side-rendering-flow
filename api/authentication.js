@@ -39,20 +39,28 @@ export function authentication(req, res) {
     }, hostConfig.secret, {
       algorithm: 'HS256',
       expiresIn: hostConfig.globalMaxAge + 'ms',
-      notBefore: '1s'
+      // !!!! IMPORTANT !!!
+      // BEWARE OF THIS, IF TOKEN IS RELEASE AND SOME AJAX DATA CALLING IMMEDIATELY
+      // THEY WONT WORK SINCE THE TOKEN IS MADE BUT NOT READY TO USE
+      notBefore: '2s'
+      // !!!! IMPORTANT !!!
     });
+
+    // console.log(res);
+    // console.log(res.session);
 
     // Send token out as a response
     return res
       .cookie('token',token,{
         maxAge: hostConfig.globalMaxAge,
-        httpOnly: true
+        httpOnly: true // If true it won't let this cookie can be accessed by client javascript
       })
       .status(200)
       .json({
         message: res.statusCode + ': You passed!!!',
-        session: req.session.id,
-        token
+        user: req.session.users[req.body.user],
+        session: req.cookies['connect.sid'],
+        token: token
       });
   }
   // Otherwise, send failed message
@@ -62,21 +70,28 @@ export function authentication(req, res) {
   });
 }
 
+function isUserLoggedIn(req) {
+  if (req.user) {
+    return (
+      // jwt session check
+      req.session.id === req.user.session &&
+      // session store check
+      !!req.session.users &&
+      !!req.session.users[req.user.name] &&
+      // database check whether session is attached to user
+      !!serverStorage.isSessionRegistered(req.user.name, req.session.id)
+    )
+  }
+  return false;
+}
+
 export function checkAuthentication(req, res) {
   // Check whether req.session.user is matched with token user (req.user)
-  if (
-    // jwt session check
-  req.session.id === req.user.session &&
-  // session store check
-  !!req.session.users &&
-  !!req.session.users[req.user.name] &&
-  // database check whether session is attached to user
-  !!serverStorage.isSessionRegistered(req.user.name, req.session.id)
-  ) {
+  if (isUserLoggedIn(req)) {
     res.status(200).json({
       message: res.statusCode + ': You have passed!!!',
-      user: req.session.users[req.user.name],
-      session: req.session.id
+      session: req.cookies['connect.sid'],
+      user: req.session.users[req.user.name]
     });
   } else {
     res.status(401).json({
@@ -86,7 +101,75 @@ export function checkAuthentication(req, res) {
   }
 }
 
+export function dropAuthentication(req,res) {
+  if (isUserLoggedIn(req)) {
+    req.session.destroy(function(){
+      res.status(200).json({
+        message: res.statusCode + ': You have logged out!!!',
+        user: null,
+        session: null,
+        token: null
+      });
+    });
+  } else {
+    res.status(401).json({
+      message: res.statusCode + ': You have failed, token is not matched with current session!!!',
+      session: req.session.id
+    });
+  }
+}
+
+export function getData(req,res) {
+  switch (req.body.type || req.query.type) {
+    case 'DATA_FOR_APP': {
+      if (isUserLoggedIn(req)) {
+        return res.status(200).json({
+          app: {
+            message : 'Put all commons data here.'
+          }
+        });
+      }
+      break;
+    }
+
+    case 'DATA_FOR_HOME': {
+      // console.log('TOKEN IS : ',req.headers['authorization']);
+      // console.log('USER IS : ',req.user);
+      if (isUserLoggedIn(req)) {
+        return res.status(200).json({
+          home: {
+            message : 'Put data for home page here.'
+          }
+        });
+      }
+      break;
+    }
+
+    case 'DATA_FOR_LOGIN': {
+      return res.status(200).json({
+        login: {
+          message : 'Put data for login page here.'
+        }
+      });
+      break;
+    }
+
+    default: {
+      return res.status(401).json({
+        message: res.statusCode + ': Data is not available!',
+        session: req.session.id
+      });
+    }
+  }
+  return res.status(401).json({
+    message: res.statusCode + ': Data is not available!',
+    session: req.session.id
+  });
+}
+
 export default {
   authentication,
-  checkAuthentication
+  checkAuthentication,
+  dropAuthentication,
+  getData
 }

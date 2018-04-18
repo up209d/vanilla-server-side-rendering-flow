@@ -3,8 +3,7 @@ import actionTypes from 'js/actionTypes';
 export const authInitialState = {
   isLoggedIn: false,
   isRequesting: false,
-  user: null,
-  cookie: null
+  user: null
 };
 
 export const auth = function(state = authInitialState,action) {

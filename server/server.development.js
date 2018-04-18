@@ -20,6 +20,7 @@ import webpack from 'webpack';
 import webpackDevMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
 import webpackConfig from 'webpack.config.dev';
+
 const compiler = webpack(webpackConfig);
 
 // EXPRESS SERVER
@@ -29,14 +30,8 @@ import cookieParser from 'cookie-parser';
 import expressJwt from 'express-jwt';
 import basicAuth from 'basic-auth';
 
-// REACT REACT DOM ROUTER REDUX
-import React from 'react';
-import ReactDOMServer from 'react-dom/server';
-import { matchPath } from 'react-router-dom';
-
 // API
-import axios from 'axios';
-import { authentication,checkAuthentication } from 'api/authentication';
+import {authentication, checkAuthentication, dropAuthentication, getData} from 'api/authentication';
 
 // UTILS
 import utils from 'js/utils';
@@ -45,9 +40,12 @@ import utils from 'js/utils';
 const app = express();
 app.use(session({
   secret: hostConfig.secret,
-  maxAge : hostConfig.globalMaxAge, // 2 weeks (fortnight) Session
-  cookie : {
-    maxAge : hostConfig.globalMaxAge, // expire the session(-cookie) after 2 weeks (fortnight)
+  maxAge: hostConfig.globalMaxAge, // 2 weeks (fortnight) Session
+  cookie: {
+    maxAge: hostConfig.globalMaxAge, // expire the session(-cookie) after 2 weeks (fortnight)
+    // If httpOnly set to true it won't let connect.sid can be accessed by client javascript
+    // Only req on server can access to the cookie
+    // Thus, if we need inject cookie for server-side ajax request, we have to make cookie from Redux store
     httpOnly: true,
     path: basename ? basename : '/'
   },
@@ -58,12 +56,12 @@ app.use(session({
 app.use(cookieParser());
 
 // USER AUTHENTICATION
-app.use(basename+'/auth',express.json());
-app.use(basename+'/auth',express.urlencoded({extended: false})); // body-parser options
-app.use('/auth',authentication);
+app.use(basename + '/auth', express.json());
+app.use(basename + '/auth', express.urlencoded({extended: false})); // body-parser options
+app.use('/auth', authentication);
 
-app.use(basename+'/auth',express.json());
-app.use(basename+'/auth',express.urlencoded({extended: false})); // body-parser options
+app.use(basename + '/check', express.json());
+app.use(basename + '/check', express.urlencoded({extended: false})); // body-parser options
 app.use('/check',
   expressJwt({
     secret: hostConfig.secret
@@ -84,6 +82,40 @@ app.use('/check',
   checkAuthentication
 );
 
+app.use(basename + '/logout', express.json());
+app.use(basename + '/logout', express.urlencoded({extended: false})); // body-parser options
+app.use('/logout',
+  expressJwt({
+    secret: hostConfig.secret
+  }),
+  // If the expressJwt return error, treat it here
+  function (err, req, res, next) {
+    if (err) {
+      // console.log(err)
+      return res.status(401).json({
+        message: err.status + ': You have failed, invalid token!!!',
+        session: req.session.id
+      });
+    } else {
+      // If no error, next() to next middleware
+      return next();
+    }
+  },
+  dropAuthentication
+);
+
+app.use(basename + '/data', express.json());
+app.use(basename + '/data', express.urlencoded({extended: false}));
+app.use('/data',
+  expressJwt({
+    secret: hostConfig.secret
+  }),
+  // Skip error from JwtExpress
+  function (err, req, res, next) {
+    return next();
+  },
+  getData
+);
 // BASIC AUTHORIZATION
 // Put it after API Route because we gonna use BEARER AUTHORIZATION for API
 // And we gonna use Basic Authorization to access the server's assets
@@ -104,7 +136,7 @@ app.use('/check',
 
 // DEV MIDDLEWARE TO EXPRESS
 app.use(
-  webpackDevMiddleware(compiler,{
+  webpackDevMiddleware(compiler, {
     // SERVER RENDER SIDE
     serverSideRender: true,
     // Serving path for local node
@@ -128,120 +160,138 @@ app.use(
 app.use(webpackHotMiddleware(compiler));
 
 // Server API
-app.use((req,res,next) => {
+app.use((req, res, next) => {
+  // Delete all cache
+  // require.cache = {};
+
   // Log the WebpackStats
   // console.log(res.locals.webpackStats);
 
+  // REACT REACT DOM ROUTER REDUX
+  const React = require('react');
+  const ReactDOMServer = require('react-dom/server');
+  const matchPath = require('react-router-dom').matchPath;
+
   // Read file main.html processed by Webpack HTML Plugin
-  let filename = path.join(compiler.outputPath,'main.html');
-  compiler.outputFileSystem.readFile(filename, 'utf-8', function(err, result) {
+  let filename = path.join(compiler.outputPath, 'main.html');
+  compiler.outputFileSystem.readFile(filename, 'utf-8', function (err, result) {
     if (err) {
       console.log(err);
       next(err);
-      return res.status(401).set('content-type','text/html').send(err.stack).end();
+      return res.status(401).set('content-type', 'text/html').send(err.stack).end();
     }
-    try {
-      // Redux Store Server Side
-      const context = {};
-      const actions = require('js/actions').default;
-      const storeGenerator = require('js/store').default;
+    // Basically, every code in ./src need to be updated in each request have to be required again and again here
+    // We are doing this by the helping from the RemoveRequireCachePlugin we wrote in webpack configuration
+    // if the code is changed and you didn't require it again, hence there will be error thrown or
+    // a data from memory caching get in the way. But we need the code updated so we need to delete the require cache
+    // and require it again to overwrite the memory cache.
+    const routeConfig = require('js/routeConfig').default;
 
-      // Material UI SSR
-      const SheetsRegistry = require('react-jss').SheetsRegistry;
-      const createGenerateClassName = require('material-ui/styles').createGenerateClassName;
-      const generateClassName = createGenerateClassName();
-      let registry = new SheetsRegistry();
+    // Redux Store Server Side
+    const context = {};
+    const actions = require('js/actions').default;
+    const storeGenerator = require('js/store').default;
 
-      // React Router Server Side
-      const ServerRouter = require('js/router').ServerRouter;
+    // Material UI SSR
+    const SheetsRegistry = require('react-jss').SheetsRegistry;
+    let registry = new SheetsRegistry();
 
-      // Inject Cookie / Session to Store in preloadedState
-      let store = storeGenerator({
-        auth: {
-          ...require('js/reducers').initialStates.auth,
-          cookie: req.headers['cookie']
+    // React Router Server Side
+    const ServerRouter = require('js/router').ServerRouter;
+
+    // Inject Cookie / Session to Store in preloadedState
+    let store = storeGenerator({
+      auth: {
+        ...require('js/reducers').initialStates.auth,
+        session: req.cookies['connect.sid'],
+        token: req.cookies['token']
+      }
+    });
+
+    let initRender = function() {
+      let allFetchPromises = [
+        store.dispatch(actions.getData('DATA_FOR_APP'))
+      ];
+
+      routeConfig(store.getState().auth.isLoggedIn).some(route => {
+        const match = matchPath(req.path, route);
+        if (match) {
+          allFetchPromises.push(
+            store.dispatch(route.loadData())
+          );
         }
+        return match;
       });
 
-
-      // Render React DOM content when
-      // all promises of data are resolved
-      let initRender = () => {
-        let state = store.getState();
-        let content = ReactDOMServer.renderToString(
-          <ServerRouter
-            store={store}
-            registry={registry}
-            generateClassName={generateClassName}
-            location={req.url}
-            context={context}
-          />
-        );
-        // Inject store data to HTML content so
-        // Client side can generate a store in initial phase with those data
-        // Thus, the store from client will be matched with store from server
-        result = result.replace('/*-STATIC-CONTENT-*/',content);
-        result = result.replace('/*-MUI-CSS-*/',registry.toString());
-        result = result.replace('"/*-USER-*/"',JSON.stringify(state.auth));
-        result = result.replace('"/*-DATA-*/"',JSON.stringify(null));
-
-        // Send out response
-        res
-          .status(200)
-          .set('content-type','text/html')
-          .send(result);
-
-        // End Request Response
-        return res.end();
-      };
-
-      // When store have the session/cookie info, we can inject those info to each ajax request
-      // Thus, we can call action thunks from both client and server and still have them with same behaviors
-      // basically for every request, here we shall check user login status
-      store
-        .dispatch(actions.userCheck())
-        .then(()=>{
-          initRender();
+      utils
+        .whenAllPromisesFinish(allFetchPromises,eachResponse => {
+          return eachResponse ? eachResponse.data : null;
         })
-        .catch(()=>{
-          initRender();
-        });
+        .then((allResults) => {
+          // console.log(allResults);
 
-      // Return true for this express route
-      return true;
-    } catch(err) {
-      // Report the error
-      console.log(err);
-      next(err);
-      // We can next(err); to continue on other route of express
-      // If we don't have route further, we can end the request here
-      // by sending the error content to client
-      return res.status(401).set('content-type','text/html').send(err.stack).end();
-    }
+          let content = ReactDOMServer.renderToString(
+            <ServerRouter
+              store={store}
+              registry={registry}
+              location={req.url}
+              context={context}
+            />
+          );
+
+          let state = store.getState();
+          // Inject store data to HTML content so
+          // Client side can generate a store in initial phase with those data
+          // Thus, the store from client will be matched with store from server
+          result = result.replace('/*-STATIC-CONTENT-*/', content);
+          result = result.replace('/*-MUI-CSS-*/', registry.toString());
+          result = result.replace('"/*-USER-*/"', JSON.stringify(state.auth));
+          result = result.replace('"/*-DATA-*/"', JSON.stringify(state.data));
+
+          // Send out response
+          res
+            .status(200)
+            .set('content-type', 'text/html')
+            .send(result);
+
+          // End Request Response
+          return res.end();
+        });
+    };
+
+    // When store have the session/cookie info, we can inject those info to each ajax request
+    // Thus, we can call action thunks from both client and server and still have them with same behaviors
+    // basically for every request, here we shall check user login status
+    store
+      .dispatch(actions.userCheck())
+      .then(initRender,initRender);
+
+    // Return true for this express route
+    return true;
   });
 });
 
 // SERVER START
 portFinder.basePort = global.__BASE_PORT__ = hostConfig.port;
-portFinder.getPort((err,port)=>{
+portFinder.getPort((err, port) => {
   if (err) {
     console.log(err);
     return err;
   }
   portFinder.basePort = global.__BASE_PORT__ = port;
-  app.listen(port,(err)=>{
+  app.listen(port, (err) => {
     if (err) {
       console.log(err);
       return err;
     } else {
       console.log('----------------------------------------------------------');
       console.log();
-      console.log('\x1b[36m','Server Started at Port: ', 'http://localhost:'+port);
-      console.log('\x1b[36m','Server Started at Port: ', 'http://'+hostConfig.lan +':'+port);
+      console.log('\x1b[36m', 'Server Started at Port: ', 'http://localhost:' + port);
+      console.log('\x1b[36m', 'Server Started at Port: ', 'http://' + hostConfig.lan + ':' + port);
       console.log('\x1b[37m');
       console.log('----------------------------------------------------------');
       console.log();
-      console.log('\x1b[39m','Waiting for Webpack Bundling ...');
+      console.log('\x1b[39m', 'Waiting for Webpack Bundling ...');
       // Open Browser when Server is started
       // require('opn')('http://localhost:' + port, {
       //   app: 'google chrome'

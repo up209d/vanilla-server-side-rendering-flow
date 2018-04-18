@@ -1,5 +1,5 @@
 import basename from 'base.config';
-import cookie from 'cookie';
+// import cookie from 'cookie';
 import _ from 'lodash';
 import axios from 'axios';
 
@@ -16,41 +16,58 @@ const utils = {
   },
   getAllActions: function() {
     return dispatch => ({
+      storeDispatch: dispatch,
       ...bindActionCreators(actions,dispatch)
     })
   },
   getConnectAllStateActions: function(Component) {
     return connect(utils.getAllStates(),utils.getAllActions())(Component);
   },
-  createFetch: function(withCookie) {
-    if (process.env.BROWSER) {
-      // CLIENT SIDE
-      // console.log('CLIENT SIDE AXIOS CALLED AT ',Date.now());
-      let currentCookie = cookie.parse(withCookie || document.cookie);
-      return (options) => {
-        return axios({
-          baseURL: basename,
-          headers: {
-            Authorization: currentCookie.token ? 'Bearer ' + currentCookie.token : ''
-          },
-          ...options
-        });
-      }
-    } else {
-      // SERVER SIDE
-      // console.log('SERVER SIDE AXIOS CALLED AT ',Date.now());
-      let currentCookie = cookie.parse(withCookie || '');
-      return (options) => {
-        return axios({
-          baseURL: 'http://localhost:' + __BASE_PORT__ + basename,
-          headers: {
-            Cookie: withCookie,
-            Authorization: 'Bearer ' + currentCookie.token
-          },
-          ...options
-        })
-      }
+  createFetch: function(auth = {}) {
+    let currentOptions = process.env.BROWSER ?
+      {
+        baseURL: basename,
+        headers: {
+          Authorization: auth.token ? 'Bearer ' + auth.token : ''
+        }
+      } : {
+        baseURL: 'http://localhost:' + __BASE_PORT__ + basename,
+        headers: {
+          Cookie: (auth.session && auth.token) ? `connect.sid=${encodeURIComponent(auth.session)};token=${encodeURIComponent(auth.token)}` : '',
+          Authorization: auth.token ? 'Bearer ' + auth.token : ''
+        }
+      };
+    return (options) => {
+      return axios({
+        ...currentOptions,
+        ...options
+      });
     }
+  },
+  whenAllPromisesFinish: function(promises,cb) {
+    return new Promise(resolve => {
+      let count = promises.length;
+      let results = [];
+      if (count) {
+        promises.forEach((promise,index) => {
+          promise.then((response)=>{
+            results[index] = cb ? cb(response) : response;
+            count--;
+            if (count === 0) {
+              resolve(results);
+            }
+          }).catch((err)=>{
+            results[index] = cb ? cb(err.response) : err.response;
+            count--;
+            if (count === 0) {
+              resolve(results);
+            }
+          });
+        })
+      } else {
+        resolve(null);
+      }
+    })
   }
 };
 
