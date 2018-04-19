@@ -9,8 +9,8 @@
 
 #### Work flow:
 ##### Server: 
-REST User Authentication Check => Redux Store => Data Fetch => React Router => ReactDOM
+Redux Store with Session => REST User Authentication Check =>  React Router => Route Data Fetching => ReactDOM
 ##### Client:
-Redux Store => Data Fetch => React Router => ReactDOM
+Redux Store with Server Preloaded Store => React Router => ReactDOM => Async Route Data Fetching
 
 > The project supports server side rendering in both 'before phase' and 'after phase' of user authentication.
