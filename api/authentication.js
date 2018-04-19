@@ -42,7 +42,7 @@ export function authentication(req, res) {
       // !!!! IMPORTANT !!!
       // BEWARE OF THIS, IF TOKEN IS RELEASE AND SOME AJAX DATA CALLING IMMEDIATELY
       // THEY WONT WORK SINCE THE TOKEN IS MADE BUT NOT READY TO USE
-      notBefore: '2s'
+      notBefore: '1s'
       // !!!! IMPORTANT !!!
     });
 

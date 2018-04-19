@@ -29,7 +29,6 @@ const style = theme => ({
 class Login extends React.Component{
   handleSubmit = e => {
     e.preventDefault();
-    console.log(this.username);
     this.props.userLogin(this.username.value,this.password.value);
   };
   render() {

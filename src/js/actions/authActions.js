@@ -82,7 +82,7 @@ export function userLogin(user,pwd) {
 
     request.then(res => {
       // !!! IMPORTANT !!!
-      // JWT is created but not ready to use in 2 second, // See /authentication.js
+      // JWT is created but not ready to use in 1 second, // See /authentication.js
       // We have to deffer this dispatch otherwise the request wont work
       setTimeout(()=>{
         console.log('Logged In!!!');
@@ -90,7 +90,7 @@ export function userLogin(user,pwd) {
           ...res.data
         }));
         dispatch(uiActions.alertClear());
-      },2000);
+      },1111);
     }).catch(err => {
       console.log('Not Logged In!!!',err);
       dispatch(userLoginFailure());
