@@ -13,4 +13,4 @@ REST User Authentication Check => Redux Store => Data Fetch => React Router => R
 ##### Client:
 Redux Store => Data Fetch => React Router => ReactDOM
 
-> The project supports server side rendering in both before phase and after phase of user authentication.
+> The project supports server side rendering in both 'before phase' and 'after phase' of user authentication.
