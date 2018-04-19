@@ -75,6 +75,10 @@ WebFontLoader.load({
   active: ()=>{
     // Make it run in queue so the unstyle content at flash wont show up
     DOMRenderer(ClientRouter);
+
+    setTimeout(()=>{
+      DOMRenderer(ClientRouter);
+    },10000);
     // Hide preload here, or can hide it somewhere after login check
     // document.getElementById('preload').setAttribute('class','hidden');
     console.log('All fonts are loaded!');

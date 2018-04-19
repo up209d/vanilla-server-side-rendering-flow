@@ -12,12 +12,24 @@ import {
 import utils from 'js/utils';
 
 const style = theme => ({
-  container: {}
+  container: {
+    color: 'black'
+  },
+  username: {
+    color: 'red'
+  },
+  password: {
+    color: 'blue'
+  },
+  submit: {
+    color: 'teal'
+  }
 });
 
 class Login extends React.Component{
   handleSubmit = e => {
     e.preventDefault();
+    console.log(this.username);
     this.props.userLogin(this.username.value,this.password.value);
   };
   render() {

@@ -162,7 +162,7 @@ app.use(webpackHotMiddleware(compiler));
 // Server API
 app.use((req, res, next) => {
   // Delete all cache
-  // require.cache = {};
+  require.cache = {};
 
   // Log the WebpackStats
   // console.log(res.locals.webpackStats);
@@ -230,14 +230,15 @@ app.use((req, res, next) => {
         .then((allResults) => {
           // console.log(allResults);
 
-          let content = ReactDOMServer.renderToString(
-            <ServerRouter
-              store={store}
-              registry={registry}
-              location={req.url}
-              context={context}
-            />
-          );
+          let content = ReactDOMServer
+            .renderToString(
+              <ServerRouter
+                store={store}
+                registry={registry}
+                location={req.url}
+                context={context}
+              />
+            );
 
           let state = store.getState();
           // Inject store data to HTML content so

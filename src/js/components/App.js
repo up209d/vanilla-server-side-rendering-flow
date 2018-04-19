@@ -2,7 +2,7 @@ import React from 'react';
 
 import {
   Grid,
-  CssBaseline,
+  // CssBaseline,
   MuiThemeProvider,
   Button
 } from 'material-ui';
@@ -58,12 +58,16 @@ class App extends React.Component {
     window.axios = require('axios');
   }
 
+  // !!! IMPORTANT !!!
+  // For SSR MuiThemeProvider need to provide new Map as sheetsManager for every request
+  // Otherwise it will take tha sheetsManager from cache and thus will create difference classNames
+  // sheetsManager={new Map()} is a must here
   render() {
     const { props } = this;
     return (
-      <MuiThemeProvider theme={props.ui.theme}>
+      <MuiThemeProvider theme={props.ui.theme} sheetsManager={new Map()}>
         <div className={'app-root'}>
-          <CssBaseline/>
+          {/*<CssBaseline/>*/}
           <ScrollToTop/>
           <Switch>
             {

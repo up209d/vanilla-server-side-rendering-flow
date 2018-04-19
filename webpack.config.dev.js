@@ -15,7 +15,7 @@ const webpackConfig = {
   performance: {
     hints: false
   },
-  cache: true,
+  cache: false,
   externals: {},
   watch: true,
   watchOptions: {
