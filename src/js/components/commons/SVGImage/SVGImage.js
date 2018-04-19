@@ -15,11 +15,19 @@ const styles = theme => ({
 });
 
 class SVGImage extends React.Component {
-  constructor(props,context) {
-    super(props);
-    this.state = {
-      isLoaded: false
+  state = {
+    isLoaded: false
+  };
+
+  static getDerivedStateFromProps(nextProps,prevState) {
+    if (nextProps.src !== prevState.src) {
+      this.setSVGInline(nextProps.src);
+      return {
+        ...prevState,
+        ...props
+      }
     }
+    return null;
   }
 
   componentWillReceiveProps(nextProps) {

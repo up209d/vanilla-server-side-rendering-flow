@@ -33,25 +33,30 @@ class ScrollToTop extends React.Component {
 
 
 class App extends React.Component {
+  state = {
+    ...this.props
+  };
 
-  componentWillReceiveProps(nextProps) {
-    // When Route Component is changed,
-    // we shall call loadData from the Route if that Route's Component is changed
-    const { props } = this;
+  static getDerivedStateFromProps(nextProps,prevState) {
     // Data calling for Client side
-    const currentRoute = routeConfig(props.auth.isLoggedIn).find(route => {
-      return matchPath(props.location.pathname, route);
-    });
-    const nextRoute = routeConfig(nextProps.auth.isLoggedIn).find(route => {
+    const currentRoute = routeConfig(nextProps.auth.isLoggedIn).find(route => {
       return matchPath(nextProps.location.pathname, route);
     });
+    const prevRoute = routeConfig(prevState.auth.isLoggedIn).find(route => {
+      return matchPath(prevState.location.pathname, route);
+    });
 
-    if (currentRoute.component !== nextRoute.component) {
+    if (currentRoute.component !== prevRoute.component) {
       // Beware of JWT, if it made with 'notBefore'
       // And this dispatch call in the time JWT is not ready to work
       // Thus, this request wont work as well
-      nextProps.storeDispatch(nextRoute.loadData())
+      nextProps.storeDispatch(currentRoute.loadData())
+      return {
+        ...prevState,
+        ...nextProps
+      }
     }
+    return null;
   }
 
   componentDidMount() {
