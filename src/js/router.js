@@ -13,9 +13,9 @@ import App from './components/App';
 const createCustomGenerateClassName = () => {
   let counter = 0;
   return (rule, sheet) => {
-    counter++;
     // console.log(counter);
-    return `up--${rule.key}-${counter}`
+    counter++;
+    return `up-app-${rule.key}-${counter}`
   };
 };
 

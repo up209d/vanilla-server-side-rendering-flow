@@ -16,7 +16,7 @@ export function authentication(req, res) {
         // username | user email as id
         id: req.body.user,
         // ip address as client address
-        address: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+        // address: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
         // client user agent for further checking
         agent: req.headers['user-agent']
       }
@@ -125,7 +125,7 @@ export function getData(req,res) {
       if (isUserLoggedIn(req)) {
         return res.status(200).json({
           app: {
-            message : 'Put all commons data here.'
+            message : 'This is data for APP fetched.'
           }
         });
       }
@@ -138,7 +138,7 @@ export function getData(req,res) {
       if (isUserLoggedIn(req)) {
         return res.status(200).json({
           home: {
-            message : 'Put data for home page here.'
+            message : 'This is data for HOME fetched.'
           }
         });
       }
@@ -148,7 +148,7 @@ export function getData(req,res) {
     case 'DATA_FOR_LOGIN': {
       return res.status(200).json({
         login: {
-          message : 'Put data for login page here.'
+          message : 'This is data for LOGIN fetched.'
         }
       });
       break;

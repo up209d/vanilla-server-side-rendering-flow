@@ -208,14 +208,35 @@ app.use((req, res, next) => {
       }
     });
 
-    let initRender = function() {
+    // !!! IMPORTANT !!!
+    // THE USER AUTHENTICATION CHECK DATA
+    // The very first data we need to fetch from our server is the user authentication
+    // To see whether user is logged in or not, also to retrieve user information
+    // After that a store and routeConfig will be create based on the user information from checking request
+    // When store have the session/cookie info, we can inject those info to each ajax request
+    // Thus, we can call action thunks from both client and server and still have them with same behaviors
+    // basically for every request, here we shall check user login status
+    store
+      .dispatch(actions.userCheck())
+      .then(initRender,initRender);
+
+    // Create Store and Render ReactDOM Server content and send Response out here
+    function initRender() {
       let allFetchPromises = [
+        // DATA: COMMONS DATA FOR THE APP
+        // in some simple app, we might need to call all data for one time only
+        // thus, DATA_FOR_APP will be very suitable
         store.dispatch(actions.getData('DATA_FOR_APP'))
       ];
 
       routeConfig(store.getState().auth.isLoggedIn).some(route => {
         const match = matchPath(req.path, route);
         if (match) {
+          // DATA: DATA FOR EACH ROUTE
+          // in complex app, each route is a small app in our whole app
+          // thus, it might need special data for only it
+          // calling Data for Route in server side here in combination with
+          // calling Data for Route in client side in App (see Components/App.js)
           allFetchPromises.push(
             store.dispatch(route.loadData())
           );
@@ -223,6 +244,9 @@ app.use((req, res, next) => {
         return match;
       });
 
+      // WHEN COMMONS DATA AND SPECIFIC DATA ARE SOLVED
+      // Mean that we have the store ready to render React app
+      // Do all the server DOM content rendering and sending out here
       utils
         .whenAllPromisesFinish(allFetchPromises,eachResponse => {
           return eachResponse ? eachResponse.data : null;
@@ -259,13 +283,6 @@ app.use((req, res, next) => {
           return res.end();
         });
     };
-
-    // When store have the session/cookie info, we can inject those info to each ajax request
-    // Thus, we can call action thunks from both client and server and still have them with same behaviors
-    // basically for every request, here we shall check user login status
-    store
-      .dispatch(actions.userCheck())
-      .then(initRender,initRender);
 
     // Return true for this express route
     return true;

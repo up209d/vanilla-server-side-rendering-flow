@@ -2,10 +2,12 @@ import React from 'react';
 
 import {
   Grid,
-  // CssBaseline,
+  CssBaseline,
   MuiThemeProvider,
   Button
 } from 'material-ui';
+
+import Breakpoint from 'js/components/commons/BreakPoint/BreakPoint';
 
 import {
   withRouter,
@@ -29,10 +31,12 @@ class ScrollToTop extends React.Component {
   }
 }
 
+
 class App extends React.Component {
 
   componentWillReceiveProps(nextProps) {
-    // When Route Component is changed, we shall call loadData from that changed Route again
+    // When Route Component is changed,
+    // we shall call loadData from the Route if that Route's Component is changed
     const { props } = this;
     // Data calling for Client side
     const currentRoute = routeConfig(props.auth.isLoggedIn).find(route => {
@@ -60,15 +64,17 @@ class App extends React.Component {
 
   // !!! IMPORTANT !!!
   // For SSR MuiThemeProvider need to provide new Map as sheetsManager for every request
-  // Otherwise it will take tha sheetsManager from cache and thus will create difference classNames
-  // sheetsManager={new Map()} is a must here
+  // Otherwise it will take tha sheetsManager from cache and thus will create difference
+  // result of classNames from client to server
+  // !!! sheetsManager={new Map()} is a must here !!!
   render() {
     const { props } = this;
     return (
       <MuiThemeProvider theme={props.ui.theme} sheetsManager={new Map()}>
         <div className={'app-root'}>
-          {/*<CssBaseline/>*/}
+          <CssBaseline/>
           <ScrollToTop/>
+          <Breakpoint updateBreakpoint={props.updateBreakpoint}/>
           <Switch>
             {
               routeConfig(props.auth.isLoggedIn).map(route => (

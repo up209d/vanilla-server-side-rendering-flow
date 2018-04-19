@@ -332,4 +332,4 @@ ResetRequireCache.prototype.apply = function (compiler) {
 };
 
 const SMP = new SpeedMeasurePlugin();
-export default webpackConfig;
+export default SMP.wrap(webpackConfig);
