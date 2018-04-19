@@ -16,34 +16,38 @@ export const RedirectToHome = () => (
 
 // 2 Set of Routes for userLoggedIn and userNotLoggedIn
 const routeConfig = (isLoggedIn) => {
-  return !isLoggedIn ? [
-    {
-      path: '/login',
-      component: Login,
-      loadData: actions.getData.bind(null,'DATA_FOR_LOGIN')
-    },
-    {
-      path: '/',
-      component: Login,
-      loadData: actions.getData.bind(null,'DATA_FOR_LOGIN')
-    }
-  ] : [
-    {
-      path: '/home',
-      component: Home,
-      loadData: actions.getData.bind(null,'DATA_FOR_HOME')
-    },
-    {
-      path: '/login',
-      component: Home,
-      loadData: actions.getData.bind(null,'DATA_FOR_HOME')
-    },
-    {
-      path: '/',
-      component: Home,
-      loadData: actions.getData.bind(null,'DATA_FOR_HOME')
-    }
-  ]
+  return !isLoggedIn ?
+    // WHEN USER IS NOT LOGGED IN
+    [
+      {
+        path: '/login',
+        component: Login,
+        loadData: actions.getData.bind(null,'DATA_FOR_LOGIN')
+      },
+      {
+        path: '/',
+        component: Login,
+        loadData: actions.getData.bind(null,'DATA_FOR_LOGIN')
+      }
+    ] :
+    // WHEN USER IS ALREADY LOGGED IN
+    [
+      {
+        path: '/home',
+        component: Home,
+        loadData: actions.getData.bind(null,'DATA_FOR_HOME')
+      },
+      {
+        path: '/login',
+        component: Home,
+        loadData: actions.getData.bind(null,'DATA_FOR_HOME')
+      },
+      {
+        path: '/',
+        component: Home,
+        loadData: actions.getData.bind(null,'DATA_FOR_HOME')
+      }
+    ]
 };
 
 export default routeConfig;
