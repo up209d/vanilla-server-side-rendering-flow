@@ -24,4 +24,4 @@ Redux Store with Server Preloaded Store => React Router => ReactDOM => Async Rou
 
 - Material UI also caches the sheetsManager of MuiThemeProvider, so to prevent className mismatching again, every request sheetsManager has to be reset with new Map().
 
-- JWT should be created with nbf (notBefore) options to avoid robot attack, hence the token retuned to client won't work before that amount of time we declared. We need to becareful of any ajax/fetch data request which require user authentication. The best way is delay a certain amount of time the promise return by user logged in to make sure jwt is valid at the time issued.
+- JWT should be created with nbf (notBefore) options to avoid robot attack, hence the token retuned to client won't work before that amount of time we declared. We need to be careful of any ajax/fetch data request which require user authentication. The best way is that delaying a certain amount of time of the promise returned by user logged in, make sure jwt is valid at the time issued.
