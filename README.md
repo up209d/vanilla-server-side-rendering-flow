@@ -2,9 +2,15 @@
 ###### React - React Router - Redux | Express | Webpack
 
 > My own build of Server Side Rendering with user authentication.
-> I build this project from scratch without helping from big framework such as Next.js or handy React-universal, Isomorphic-react. So I can understand stuffs behind the scene as well as fully customizing and controlling on my desire.
+> I build this project from scratch without helping from handy framework/libs such as Next.js, React-loadable, React-universal, Isomorphic-react & etc. So I can understand stuffs behind the scene as well as fully customizing and controlling on my desire.
 
-> Essentially, this is a combo of React, React Router 4, Redux, React-Jss, Material-UI, Express, Webpack 4 and so on.
+> Essentially, this is a combo of React, React Router 4, Redux, React-Jss, Material-UI, Express, Webpack 4 and so on. 
+
+#### There are many ways to make a SSR Web App. 
+##### All by Express (PHP-like) * * * 
+You can put all the effort to express server and let it handle everything on every request such as pre-rendered content, routing, store. However, that solution creates a heavy work-loading burden to server as the link transition will trigger a full page reloading every time. Thus, I don't like that much, especially in case we want a client-only SPA we cannot switch easily.
+##### A True Hybrid SSR SPA * * * * *
+It is still better if we can make a true hybrid SSR SPA. That just loads our application only once with pre-populated content of the specific requested routing. Otherwise, it shall handle the rest from client side and communicate with server via REST API. It is also a flexible solution of returning back to SPA client-only, when you have to deploy the project to just a static http server.
 
 #### Work flow:
 ##### Server: 
