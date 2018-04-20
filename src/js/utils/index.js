@@ -37,6 +37,7 @@ const utils = {
           Authorization: auth.token ? 'Bearer ' + auth.token : ''
         }
       };
+
     return (options) => {
       return axios({
         ...currentOptions,

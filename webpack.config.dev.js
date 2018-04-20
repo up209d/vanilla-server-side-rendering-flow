@@ -62,10 +62,10 @@ const webpackConfig = {
     new CopyWebpackPlugin([
       // Remember the root folder for the destination is the global output path of config already
       // It is already 'dist' as the root folder
-      {
-        from: './src/assets/images/favicon.ico',
-        to: './favicon.[hash].ico'
-      },
+      // {
+      //   from: './src/assets/images/favicon.ico',
+      //   to: './favicon.[hash].ico'
+      // },
       {
         from: './data/**/*.*',
         to: './[path][name].[ext]', // ?v=[hash] // [query]
@@ -113,7 +113,7 @@ const webpackConfig = {
         },
         styles: {
           test: /\.css$/,
-          name: 'styles',
+          name: 'stylesBundle',
           chunks: 'all',
           enforce: true
         }

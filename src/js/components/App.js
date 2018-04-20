@@ -34,6 +34,12 @@ class ScrollToTop extends React.Component {
 
 class App extends React.Component {
   state = {
+    // Doing assign props here will make the getDerivedStateFromProps wont call
+    // from the very first time of render
+    // But it is reasonable in this situation because when client loaded,
+    // the store from server injected here already call the route loadData
+    // thus, the store have already the data from the first route
+    // there is no need to call request from client side again
     ...this.props
   };
 
@@ -50,7 +56,17 @@ class App extends React.Component {
       // Beware of JWT, if it made with 'notBefore'
       // And this dispatch call in the time JWT is not ready to work
       // Thus, this request wont work as well
-      nextProps.storeDispatch(currentRoute.loadData())
+      nextProps
+        .storeDispatch(currentRoute.loadData())
+        // TRAP THE REJECTION ERROR HERE
+        .then(()=>{
+          // Load Data Done
+          console.log('Data for ' + currentRoute.path + ' is fetched!')
+        })
+        .catch(()=>{
+          // Load Data Failed
+          console.log('Data for ' + currentRoute.path + ' is failed!')
+        });
       return {
         ...prevState,
         ...nextProps
@@ -91,6 +107,10 @@ class App extends React.Component {
       </MuiThemeProvider>
     )
   }
+}
+
+if (process.env.BROWSER) {
+  console.log(__webpack_hash__);
 }
 
 export default withRouter(utils.getConnectAllStateActions(App));

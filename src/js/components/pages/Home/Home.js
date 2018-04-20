@@ -27,7 +27,10 @@ class Home extends React.Component{
             !!!props.data.home ? (
               <CircularProgress size={50}/>
             ) : (
-              <Typography align={'center'} variant={'title'} color={'secondary'}>{props.data.home.message}</Typography>
+              <Typography align={'center'} variant={'title'} color={'secondary'}>
+                {props.data.home.message}
+                <img style={{display:'inline-block'}} width={320} src={require('images/test.jpg')} alt={'test'}/>
+              </Typography>
             )
           }
           <Button fullWidth color={'primary'} variant={'raised'} onClick={props.userLogout}>LOGOUT</Button>

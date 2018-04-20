@@ -7,6 +7,8 @@ import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import HTMLWebpackPlugin from 'html-webpack-plugin';
 import AddAssetHtmlPlugin from 'add-asset-html-webpack-plugin';
 import CopyWebpackPlugin from 'copy-webpack-plugin';
+import UglifyJsPlugin from 'uglifyjs-webpack-plugin';
+import OptimizeCSSAssetsPlugin from 'optimize-css-assets-webpack-plugin';
 
 const webpackConfig = {
   devtool: false,
@@ -29,13 +31,13 @@ const webpackConfig = {
   plugins: [
     new webpack.DefinePlugin({
       'process.env': {
-        NODE_ENV: JSON.stringify('development'),
-        BABEL_ENV: JSON.stringify('development'),
+        NODE_ENV: JSON.stringify('production'),
+        BABEL_ENV: JSON.stringify('production'),
         BROWSER: JSON.stringify(true)
       }
     }),
     new MiniCssExtractPlugin({
-      filename: '[name].css',
+      filename: '[name].[hash].css',
       // No need chunk filename if we combine all css together
       // chunkFilename: "[id].css"
     }),
@@ -43,9 +45,9 @@ const webpackConfig = {
       // If set it to index.html, so the express server will jump in it directly
       // So we cannot make the server rendering for the root url exp http://localhost:20987
       // Solution here is create template html with other than index.html
-      filename: 'main.html', // avoid name index.html to make all requests have to fallback to our api (see server.development.js)
+      filename: 'main.html', // avoid name index.html to make all requests have to fallback to our api (see server.production.js)
       // !!! IMPORTANT !!!
-      hash: true, // add ?[build hash] to serving files to avoid caching
+      // hash: true, // add ?[build hash] to serving files to avoid caching
       // !!! IMPORTANT !!!
       favicon: './src/assets/images/favicon.ico',
       template: './src/index.html',
@@ -59,10 +61,10 @@ const webpackConfig = {
     new CopyWebpackPlugin([
       // Remember the root folder for the destination is the global output path of config already
       // It is already 'dist' as the root folder
-      {
-        from: './src/assets/images/favicon.ico',
-        to: './favicon.[hash].ico'
-      },
+      // {
+      //   from: './src/assets/images/favicon.ico',
+      //   to: './favicon.ico'
+      // },
       {
         from: './data/**/*.*',
         to: './[path][name].[ext]', // ?v=[hash] // [query]
@@ -110,12 +112,33 @@ const webpackConfig = {
         },
         styles: {
           test: /\.css$/,
-          name: 'styles',
+          name: 'stylesBundle',
           chunks: 'all',
           enforce: true
         }
       }
-    }
+    },
+    minimizer: [
+      new UglifyJsPlugin({
+        uglifyOptions: {
+          compress: {
+            drop_console: true,
+            warnings: false
+          },
+          output: {
+            comments: false,
+            beautify: false
+          },
+          warnings: false,
+          mangle: true
+        },
+        parallel: true,
+        sourceMap: false
+      }),
+      new OptimizeCSSAssetsPlugin({
+        canPrint: true
+      })
+    ]
   },
   resolve: {
     modules: [
@@ -257,7 +280,7 @@ const webpackConfig = {
                 use: {
                   loader: 'file-loader',
                   options: {
-                    name: 'assets/images/[name].[ext]'
+                    name: 'assets/images/[name].[hash].[ext]'
                   }
                 }
               },
@@ -284,7 +307,7 @@ const webpackConfig = {
                   options: {
                     limit: '10000',
                     mimetype: 'image/svg+xml',
-                    name: 'assets/images/[name].[ext]'
+                    name: 'assets/images/[name].[hash].[ext]'
                   }
                 }
               },
@@ -294,7 +317,7 @@ const webpackConfig = {
                   loader: 'url-loader',
                   options: {
                     limit: '1000',
-                    name: 'assets/images/[name].[ext]'
+                    name: 'assets/images/[name].[hash].[ext]'
                   }
                 }
               }
@@ -307,7 +330,7 @@ const webpackConfig = {
   output: {
     path: path.resolve(__dirname + '/dist' + basename),
     publicPath: basename + '/',
-    filename: '[name].js'
+    filename: '[name].[hash].js'
   }
 };
 

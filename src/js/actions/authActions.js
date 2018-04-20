@@ -79,7 +79,6 @@ export function userLogin(user,pwd) {
     });
     dispatch(userLoginRequest());
 
-
     request.then(res => {
       // !!! IMPORTANT !!!
       // JWT is created but not ready to use in 1 second, // See /authentication.js

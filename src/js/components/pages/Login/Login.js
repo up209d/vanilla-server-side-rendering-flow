@@ -29,7 +29,8 @@ const style = theme => ({
 class Login extends React.Component{
   handleSubmit = e => {
     e.preventDefault();
-    this.props.userLogin(this.username.value,this.password.value);
+    this.props
+      .userLogin(this.username.value,this.password.value)
   };
   render() {
     const { props } = this;
@@ -37,6 +38,9 @@ class Login extends React.Component{
     return (
       <Grid className={classes.container} container justify={'center'} alignItems={'center'}>
         <Grid item xs={12} md={6} lg={4}>
+          <Grid container justify={'center'} alignItems={'center'}>
+            <img width={100} src={require('images/logo.svg')} alt={'logo'}/>
+          </Grid>
           <Typography align={'center'} variant={'display1'} color={'primary'}>LOGIN</Typography>
           {
             props.ui.alert.message && (

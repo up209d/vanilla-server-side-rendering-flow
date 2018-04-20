@@ -52,7 +52,6 @@ const productionStore = preloadedState => {
       applyMiddleware(...middlewares)
     )
   );
-  console.log('Production Store inited: ', store.getState());
   return store;
 };
 

@@ -11,7 +11,11 @@
     "dev-mon": "NODE_PATH=./:./src:./src/js ./node_modules/nodemon/bin/nodemon.js --config ./nodemon.json --exec ./node_modules/babel-cli/bin/babel-node.js ./server/server.development.js",
     "dev-mon-win": "NODE_PATH=./;./src;./src/js ./node_modules/nodemon/bin/nodemon.js --config ./nodemon.json --exec ./node_modules/babel-cli/bin/babel-node.js ./server/server.development.js",
     "dev": "npm run clean && echo 'Running Development ...' && npm run env-development && npm run dev-mon",
-    "dev-win": "npm run clean && echo 'Running Development ...' && npm run env-development && npm run dev-mon-win"
+    "dev-win": "npm run clean && echo 'Running Development ...' && npm run env-development && npm run dev-mon-win",
+    "prod": "node ./node_modules/babel-cli/bin/babel.js ./server/server.production.js -o ./server/server.production.legacy.js && NODE_PATH=./:./src:./src/js node ./server/server.production.legacy.js",
+    "prod-win": "node ./node_modules/babel-cli/bin/babel.js ./server/server.production.js -o ./server/server.production.legacy.js && NODE_PATH=./;./src;./src/js node ./server/server.production.legacy.js",
+    "build": "npm run clean && echo 'Running Production ...' && npm run env-production && npm run prod",
+    "build-win": "npm run clean && echo 'Running Production ...' && npm run env-production && npm run prod-win"
   },
   "keywords": [
     "React",
@@ -57,6 +61,7 @@
     "express": "^4.16.3",
     "express-jwt": "^5.3.1",
     "express-session": "^1.15.6",
+    "file-loader": "^1.1.11",
     "glob": "^7.1.2",
     "history": "^4.7.2",
     "html-webpack-plugin": "^3.2.0",
@@ -69,6 +74,7 @@
     "node-sass": "^4.8.3",
     "nodemon": "^1.17.3",
     "opn": "^5.3.0",
+    "optimize-css-assets-webpack-plugin": "^4.0.0",
     "portfinder": "^1.0.13",
     "postcss-loader": "^2.1.4",
     "quick-local-ip": "^1.0.7",
@@ -89,6 +95,7 @@
     "sass-loader": "^7.0.1",
     "speed-measure-webpack-plugin": "^1.2.2",
     "style-loader": "^0.20.3",
+    "uglifyjs-webpack-plugin": "^1.2.5",
     "url-loader": "^1.0.1",
     "webfontloader": "^1.6.28",
     "webpack": "^4.5.0",

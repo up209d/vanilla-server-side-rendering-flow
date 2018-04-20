@@ -31,7 +31,7 @@ import expressJwt from 'express-jwt';
 import basicAuth from 'basic-auth';
 
 // API
-import {authentication, checkAuthentication, dropAuthentication, getData} from 'api/authentication';
+import { authentication, checkAuthentication, dropAuthentication, getData } from 'api/authentication';
 
 // UTILS
 import utils from 'js/utils';
@@ -55,14 +55,15 @@ app.use(session({
 
 app.use(cookieParser());
 
+
 // USER AUTHENTICATION
 app.use(basename + '/auth', express.json());
 app.use(basename + '/auth', express.urlencoded({extended: false})); // body-parser options
-app.use('/auth', authentication);
+app.use(basename + '/auth', authentication);
 
 app.use(basename + '/check', express.json());
 app.use(basename + '/check', express.urlencoded({extended: false})); // body-parser options
-app.use('/check',
+app.use(basename + '/check',
   expressJwt({
     secret: hostConfig.secret
   }),
@@ -84,7 +85,7 @@ app.use('/check',
 
 app.use(basename + '/logout', express.json());
 app.use(basename + '/logout', express.urlencoded({extended: false})); // body-parser options
-app.use('/logout',
+app.use(basename + '/logout',
   expressJwt({
     secret: hostConfig.secret
   }),
@@ -106,7 +107,7 @@ app.use('/logout',
 
 app.use(basename + '/data', express.json());
 app.use(basename + '/data', express.urlencoded({extended: false}));
-app.use('/data',
+app.use(basename + '/data',
   expressJwt({
     secret: hostConfig.secret
   }),
@@ -159,6 +160,102 @@ app.use(
 // HOT MIDDLEWARE TO EXPRESS
 app.use(webpackHotMiddleware(compiler));
 
+
+// globalStats will keep up to date with stats from webpack every time its recompiled
+let globalStats = {};
+
+function getStats() {
+  return globalStats.toJson ? globalStats.toJson() : null;
+}
+
+// REQUIRE HACK WHICH GET STATS FROM WEBPACK TO
+// RENDER ASSESTS PATHS IN SERVER SIDE REQUIRE
+let Module = require('module');
+let _require = Module.prototype.require;
+Module.prototype.require = function() {
+  let currentPath = arguments[0];
+  let contextId = this.id;
+  try {
+    // IF JS JSON, JUST RETURN A ORIGINAL REQUIRE
+    return _require.call(this,arguments[0]);
+  } catch (err) {
+    // FALLBACK OF UNSUPPORT CASES ( NON JS & JSON FILES)
+    // THE FALLBACK WILL RETURN THE ASSESTS PATH MATCHED WITH WEBPACK DOES IN THE BUNDLE
+    let currentStats = getStats();
+    if (currentStats) {
+      // MAKE A REF LIST OF ASSETS REQUIRE IN SERVER SIDE
+      let stats = currentStats;
+      let currentModules = stats.modules;
+
+      // Just need all module from of our src directory
+      let srcModules = currentModules.filter(eachModule => {
+        return typeof eachModule['id'] === 'string' &&
+          eachModule['id'].indexOf('./src/') === 0 &&
+          eachModule['source'].indexOf('module.exports') === 0
+      });
+
+      // Get References of all modules in our src folder
+      // Key the References by module ID
+      let srcModulesById = utils.keyBy(
+        srcModules.map(srcModule => {
+          // we need only the source & id
+          let getSource = function() {
+            let module = {};
+            let __webpack_public_path__ = stats.publicPath;
+            return srcModule['source'] ? eval(srcModule['source']) : null;
+          };
+
+          let id = srcModule.id;
+          let source = getSource();
+          let name = id.substring(id.lastIndexOf('/') + 1, id.length);
+          // WEBPACK BUNDLED ASSETS FILE TYPE REFERENCES
+          // let ext = source.indexOf('data:') !== -1 ? 'uri' : name.substring(name.lastIndexOf('.') + 1, name.length);
+          // let fileType = getFileType(ext);
+          // let contentType = fileType.contentType;
+
+          return {
+            id,
+            name,
+            // ext,
+            // contentType,
+            source,
+            reasons: srcModule.reasons ? ( srcModule.reasons.length ? srcModule.reasons : [srcModule.reasons] ) : []
+          }
+        }),
+        'id'
+      );
+
+      // Collect all Reason of UserRequest in each of our src Module
+      let srcReasons = utils.flatten(srcModules.map(srcModule => {
+        return srcModule.reasons.map(reason => {
+          return {
+            ...reason,
+            sourceId: srcModule.id,
+            sourceIdPath: path.resolve(srcModule.id),
+            source: srcModulesById[srcModule.id].source,
+            modulePath: path.resolve(reason.moduleName || reason.module)
+          }
+        })
+      }));
+
+      // Create a object reference key by the userRequest and the source context of that userRequest
+      let srcReasonsByRequest = utils.keyBy(srcReasons,function(srcReason){
+        return srcReason['userRequest'] + '-----' + srcReason['modulePath'];
+      });
+
+      // From that we can easily select the reason
+      // by currentPath as userRequest
+      // by contextId as the source context of this require
+      let foundReason = srcReasonsByRequest[currentPath + '-----' + contextId];
+      return foundReason ? foundReason['source'] : '';
+    } else {
+      console.log('REQUIRE ERROR: ',err); //err
+      return null;
+    }
+  }
+};
+
+
 // Server API
 app.use((req, res, next) => {
   // Delete all cache
@@ -166,6 +263,8 @@ app.use((req, res, next) => {
 
   // Log the WebpackStats
   // console.log(res.locals.webpackStats);
+  console.log(res.locals.webpackStats.hash);
+  globalStats = res.locals.webpackStats;
 
   // REACT REACT DOM ROUTER REDUX
   const React = require('react');
@@ -218,7 +317,8 @@ app.use((req, res, next) => {
     // basically for every request, here we shall check user login status
     store
       .dispatch(actions.userCheck())
-      .then(initRender,initRender);
+      .then(initRender)
+      .catch(initRender);
 
     // Create Store and Render ReactDOM Server content and send Response out here
     function initRender() {
@@ -254,33 +354,42 @@ app.use((req, res, next) => {
         .then((allResults) => {
           // console.log(allResults);
 
-          let content = ReactDOMServer
-            .renderToString(
-              <ServerRouter
-                store={store}
-                registry={registry}
-                location={req.url}
-                context={context}
-              />
-            );
+          try {
+            let content = ReactDOMServer
+              .renderToString(
+                <ServerRouter
+                  store={store}
+                  registry={registry}
+                  location={req.url}
+                  context={context}
+                />
+              );
+            let state = store.getState();
+            // Inject store data to HTML content so
+            // Client side can generate a store in initial phase with those data
+            // Thus, the store from client will be matched with store from server
+            result = result.replace('/*-STATIC-CONTENT-*/', content);
+            result = result.replace('/*-MUI-CSS-*/', registry.toString());
+            result = result.replace('"/*-USER-*/"', JSON.stringify(state.auth));
+            result = result.replace('"/*-DATA-*/"', JSON.stringify(state.data));
 
-          let state = store.getState();
-          // Inject store data to HTML content so
-          // Client side can generate a store in initial phase with those data
-          // Thus, the store from client will be matched with store from server
-          result = result.replace('/*-STATIC-CONTENT-*/', content);
-          result = result.replace('/*-MUI-CSS-*/', registry.toString());
-          result = result.replace('"/*-USER-*/"', JSON.stringify(state.auth));
-          result = result.replace('"/*-DATA-*/"', JSON.stringify(state.data));
+            // Send out response
+            res
+              .status(200)
+              .set('content-type', 'text/html')
+              .send(result);
 
-          // Send out response
-          res
-            .status(200)
-            .set('content-type', 'text/html')
-            .send(result);
-
-          // End Request Response
-          return res.end();
+            // End Request Response
+            return res.end();
+          } catch(err) {
+            console.log(err);
+            let content = '';
+            res
+              .status(200)
+              .set('content-type', 'text/html')
+              .send(result);
+            return res.end();
+          }
         });
     };
 

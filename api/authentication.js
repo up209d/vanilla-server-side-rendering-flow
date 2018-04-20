@@ -120,12 +120,18 @@ export function dropAuthentication(req,res) {
 }
 
 export function getData(req,res) {
-  switch (req.body.type || req.query.type) {
+  switch (req.query.type) {
     case 'DATA_FOR_APP': {
       if (isUserLoggedIn(req)) {
         return res.status(200).json({
           app: {
-            message : 'This is data for APP fetched.'
+            message : 'This is data for APP fetched when user is logged in.'
+          }
+        });
+      } else {
+        return res.status(200).json({
+          app: {
+            message : 'This is data for APP fetched when user is NOT logged in.'
           }
         });
       }
@@ -138,7 +144,7 @@ export function getData(req,res) {
       if (isUserLoggedIn(req)) {
         return res.status(200).json({
           home: {
-            message : 'This is data for HOME fetched.'
+            message : 'This is data for HOME fetched only when user is logged in.'
           }
         });
       }
