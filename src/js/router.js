@@ -10,12 +10,12 @@ import customHistory from './history';
 
 import App from './components/App';
 
-const createCustomGenerateClassName = () => {
+const createCustomGenerateClassName = (random = '') => {
   let counter = 0;
   return (rule, sheet) => {
     // console.log(counter);
     counter++;
-    return `up-app-${rule.key}-${counter}`
+    return `up-app-${random}-${rule.key}-${counter}`
   };
 };
 

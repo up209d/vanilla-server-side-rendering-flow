@@ -8,6 +8,12 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 const utils = {
+  generateUID: function() {
+    let counter = 0;
+    return function(prefix) {
+      return (prefix || 'uid') + '--' + counter++;
+    }
+  },
   ..._,
   getAllStates: function(additionalData) {
     return state => ({

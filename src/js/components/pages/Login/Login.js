@@ -16,10 +16,10 @@ const style = theme => ({
     color: 'black'
   },
   username: {
-    color: 'red'
+    // color: 'red'
   },
   password: {
-    color: 'blue'
+    // color: 'blue'
   },
   submit: {
     color: 'teal'
@@ -51,7 +51,7 @@ class Login extends React.Component{
             <FormControl fullWidth noValidate autoComplete={'off'}>
               <TextField
                 required
-                id={'username'}
+                id={classes.username + props.getUID()}
                 label={'Username'}
                 placeholder={'Enter your username'}
                 margin={'normal'}
@@ -60,7 +60,7 @@ class Login extends React.Component{
               />
               <TextField
                 required
-                id={'password'}
+                id={classes.password + props.getUID()}
                 label={'Password'}
                 placeholder={'Enter your password'}
                 margin={'normal'}

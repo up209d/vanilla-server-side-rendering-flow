@@ -31,7 +31,6 @@ class ScrollToTop extends React.Component {
   }
 }
 
-
 class App extends React.Component {
   state = {
     // Doing assign props here will make the getDerivedStateFromProps wont call

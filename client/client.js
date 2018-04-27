@@ -7,9 +7,10 @@ require('scss/app.scss');
 let ClientRouter = require('js/router').ClientRouter;
 
 import storeGenerator from 'js/store';
+
 const store = storeGenerator({
   auth: __USER__ || undefined,
-  data: __DATA__ || undefined
+  data: __DATA__ || undefined,
 });
 
 // React
@@ -35,7 +36,7 @@ setConfig({ logLevel: 'debug' });
 const DOMRenderer = (Component) => {
   ReactDOM.hydrate(
     <AppContainer warnings={false}>
-      <Component store={store}/>
+      <Component store={store} randomSeed={__USER__.randomSeed}/>
     </AppContainer>
     ,document.getElementById('root'),()=>{
       // When all DOM are rendered we shall removed the Sever-side MUI CSS here

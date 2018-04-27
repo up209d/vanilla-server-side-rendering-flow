@@ -297,13 +297,15 @@ app.use((req, res, next) => {
 
     // React Router Server Side
     const ServerRouter = require('js/router').ServerRouter;
+    const randomSeed = Math.random().toString(36).substring(0,5);
 
     // Inject Cookie / Session to Store in preloadedState
     let store = storeGenerator({
       auth: {
         ...require('js/reducers').initialStates.auth,
         session: req.cookies['connect.sid'],
-        token: req.cookies['token']
+        token: req.cookies['token'],
+        randomSeed: '' // randomSeed
       }
     });
 
@@ -362,6 +364,7 @@ app.use((req, res, next) => {
                   registry={registry}
                   location={req.url}
                   context={context}
+                  randomSeed={randomSeed}
                 />
               );
             let state = store.getState();

@@ -26,6 +26,13 @@ export function alertClear() {
   }
 }
 
+export function getUID(payload) {
+  return {
+    type: actionTypes.GET_UNIQUE_ID,
+    payload
+  }
+}
+
 export function updateBreakpoint(payload) {
   return {
     type: actionTypes.UPDATE_BREAKPOINT,
