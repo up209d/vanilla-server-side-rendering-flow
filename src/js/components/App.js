@@ -109,7 +109,7 @@ class App extends React.Component {
 }
 
 if (process.env.BROWSER) {
-  console.log(__webpack_hash__);
+  console.log('HASH: ',__webpack_hash__);
 }
 
 export default withRouter(utils.getConnectAllStateActions(App));

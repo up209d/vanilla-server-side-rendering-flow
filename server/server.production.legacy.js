@@ -331,12 +331,14 @@ compiler.run(function (err, currentStats) {
 
       // React Router Server Side
       var ServerRouter = require('js/router').ServerRouter;
+      var randomSeed = Math.random().toString(36).substring(0, 5);
 
       // Inject Cookie / Session to Store in preloadedState
       var store = storeGenerator({
         auth: _extends({}, require('js/reducers').initialStates.auth, {
           session: req.cookies['connect.sid'],
-          token: req.cookies['token']
+          token: req.cookies['token'],
+          randomSeed: '' // randomSeed
         })
       });
 
@@ -383,7 +385,8 @@ compiler.run(function (err, currentStats) {
             store: store,
             registry: registry,
             location: req.url,
-            context: context
+            context: context,
+            randomSeed: randomSeed
           }));
 
           var state = store.getState();

@@ -331,5 +331,6 @@ ResetRequireCache.prototype.apply = function (compiler) {
   });
 };
 
+// Just use it when needed since it is not up to date with webpack 4
 const SMP = new SpeedMeasurePlugin();
-export default SMP.wrap(webpackConfig);
+export default webpackConfig;
