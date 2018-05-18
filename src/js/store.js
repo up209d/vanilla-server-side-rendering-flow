@@ -56,6 +56,7 @@ const developmentStore = preloadedState => {
 };
 
 const productionStore = preloadedState => {
+	const getUID = new utils.generateUID();
   const store = createStore(
     appReducers,
     {
@@ -63,7 +64,16 @@ const productionStore = preloadedState => {
       ...preloadedState
     },
     compose(
-      applyMiddleware(...middlewares)
+      applyMiddleware(
+        store => next => action => {
+          if (action.type === actionTypes.GET_UNIQUE_ID) {
+            return getUID(action.payload);
+          } else {
+            return next(action);
+          }
+        },
+        ...middlewares
+      )
     )
   );
   return store;
