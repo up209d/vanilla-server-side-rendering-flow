@@ -318,7 +318,7 @@ compiler.run((err,currentStats) => {
 
         routeConfig(store.getState().auth.isLoggedIn).some(route => {
           const match = matchPath(req.path, route);
-          if (match) {
+          if (match && !!route.loadData) {
             // DATA: DATA FOR EACH ROUTE
             // in complex app, each route is a small app in our whole app
             // thus, it might need special data for only it
