@@ -75,6 +75,14 @@ const utils = {
         resolve(null);
       }
     })
+  },
+  isBreakpointUp: (breakpoint,currentBreakpoint) => {
+    let ref = ['xs','sm','md','lg','xl'];
+    return ref.indexOf(breakpoint) <= ref.indexOf(currentBreakpoint);
+  },
+  isBreakpointDown: (breakpoint,currentBreakpoint) => {
+    let ref = ['xs','sm','md','lg','xl'];
+    return ref.indexOf(breakpoint) >= ref.indexOf(currentBreakpoint);
   }
 };
 

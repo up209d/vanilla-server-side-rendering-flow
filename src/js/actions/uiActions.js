@@ -44,7 +44,7 @@ export function isBreakpointUp(breakpoint) {
   let ref = ['xs','sm','md','lg','xl'];
   return (dispatch,getState) => {
     let currentState = getState();
-    return ref.indexOf(breakpoint) <= ref.indexOf(currentState.ui.breakpoint);
+    return ref.indexOf(breakpoint) <= ref.indexOf(currentState.ui.theme.currentBreakpoint);
   }
 }
 
@@ -52,7 +52,7 @@ export function isBreakpointDown(breakpoint) {
   let ref = ['xs','sm','md','lg','xl'];
   return (dispatch,getState) => {
     let currentState = getState();
-    return ref.indexOf(breakpoint) >= ref.indexOf(currentState.ui.breakpoint);
+    return ref.indexOf(breakpoint) >= ref.indexOf(currentState.ui.theme.currentBreakpoint);
   }
 }
 

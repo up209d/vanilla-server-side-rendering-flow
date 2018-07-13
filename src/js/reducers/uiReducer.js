@@ -3,8 +3,10 @@ import { createMuiTheme } from 'material-ui';
 import themes from 'js/themes';
 
 export const uiInitialState = {
-  theme: createMuiTheme(themes.default),
-  breakpoint: 'md',
+  theme: {
+    ...createMuiTheme(themes.default),
+    currentBreakpoint: 'md'
+  },
   alert: {
     type: null,
     message: null
@@ -16,7 +18,10 @@ export const ui = function(state = uiInitialState,action) {
     case actionTypes.UPDATE_BREAKPOINT: {
       return {
         ...state,
-        breakpoint: action.payload
+        theme: {
+          ...state.theme,
+          currentBreakpoint: action.payload
+        }
       }
     }
 
