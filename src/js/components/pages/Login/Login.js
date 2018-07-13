@@ -1,4 +1,5 @@
 import React from 'react';
+import injectSheet from 'react-jss';
 import {
   withStyles,
   Grid,
@@ -13,7 +14,7 @@ import utils from 'js/utils';
 
 const style = theme => ({
   container: {
-    color: 'black'
+    color: props => 'black'
   },
   username: {
     // color: 'red'
@@ -82,4 +83,4 @@ class Login extends React.Component{
   }
 };
 
-export default utils.getConnectAllStateActions(withStyles(style,{withTheme: true})(Login));
+export default utils.getConnectAllStateActions(injectSheet(style)(Login));

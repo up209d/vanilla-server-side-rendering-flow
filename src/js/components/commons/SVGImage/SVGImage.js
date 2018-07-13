@@ -1,6 +1,8 @@
 import React from 'react';
 import utils from 'js/utils';
 
+import injectSheet from 'react-jss';
+
 import {
   withStyles,
   Grid,
@@ -79,4 +81,4 @@ class SVGImage extends React.Component {
 
 SVGImage.defaultProps = {};
 
-export default withStyles(styles,{withTheme: true})(SVGImage);
+export default injectSheet(styles)(SVGImage);

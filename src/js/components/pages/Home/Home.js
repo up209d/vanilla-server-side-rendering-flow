@@ -1,4 +1,5 @@
 import React from 'react';
+import injectSheet from 'react-jss';
 import {
   withStyles,
   Grid,
@@ -40,4 +41,4 @@ class Home extends React.Component {
   }
 };
 
-export default utils.getConnectAllStateActions(withStyles(style,{withTheme: true})(Home));
+export default utils.getConnectAllStateActions(injectSheet(style)(Home));
