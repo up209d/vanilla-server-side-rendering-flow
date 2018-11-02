@@ -45,7 +45,7 @@ const developmentStore = preloadedState => {
     // Enable Webpack hot module replacement for reducers
     module.hot.accept('./reducers', () => {
       console.log('[HMR]: replaced --> [Reducer]');
-      const nextRootReducer = require('./reducers').default;
+      const nextRootReducer = require('./reducers').appReducers;
       store.replaceReducer(nextRootReducer);
       console.log('Dev Store Replaced: ', store.getState());
     })
