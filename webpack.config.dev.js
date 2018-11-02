@@ -9,6 +9,8 @@ import AddAssetHtmlPlugin from 'add-asset-html-webpack-plugin';
 import CopyWebpackPlugin from 'copy-webpack-plugin';
 import SpeedMeasurePlugin from 'speed-measure-webpack-plugin';
 
+import ReactJssHmrPlugin from 'react-jss-hmr/webpack';
+
 const webpackConfig = {
   devtool: 'eval',
   mode: 'development',
@@ -139,7 +141,10 @@ const webpackConfig = {
       ASSETS_DIR: path.resolve(__dirname + '/src/assets'),
       IMAGE_DIR: path.resolve(__dirname + '/src/assets/images'),
       FONT_DIR: path.resolve(__dirname + '/src/assets/fonts')
-    }
+    },
+    plugins: [
+      new ReactJssHmrPlugin()
+    ]
   },
   module: {
     rules: [
