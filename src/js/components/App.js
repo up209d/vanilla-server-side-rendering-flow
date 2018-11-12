@@ -55,17 +55,19 @@ class App extends React.Component {
       // Beware of JWT, if it made with 'notBefore'
       // And this dispatch call in the time JWT is not ready to work
       // Thus, this request wont work as well
-      nextProps
-        .storeDispatch(currentRoute.loadData())
-        // TRAP THE REJECTION ERROR HERE
-        .then(()=>{
-          // Load Data Done
-          console.log('Data for ' + currentRoute.path + ' is fetched!')
-        })
-        .catch(()=>{
-          // Load Data Failed
-          console.log('Data for ' + currentRoute.path + ' is failed!')
-        });
+      if (currentRoute.loadData) {
+        nextProps
+          .storeDispatch(currentRoute.loadData())
+          // TRAP THE REJECTION ERROR HERE
+          .then(()=>{
+            // Load Data Done
+            console.log('Data for ' + currentRoute.path + ' is fetched!')
+          })
+          .catch(()=>{
+            // Load Data Failed
+            console.log('Data for ' + currentRoute.path + ' is failed!')
+          });
+      }
       return {
         ...prevState,
         ...nextProps
