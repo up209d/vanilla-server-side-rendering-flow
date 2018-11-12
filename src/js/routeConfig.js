@@ -6,12 +6,20 @@ import actions from 'js/actions';
 import Login from 'js/components/pages/Login/Login';
 import Home from 'js/components/pages/Home/Home';
 
+// We still need to put the real Route Component
+// with Redirect for pre-render the server-side content
 export const RedirectToLogin = () => (
-  <Redirect to={'/login'}/>
+  <React.Fragment>
+    <Redirect to={'/login'}/>
+    <Login/>
+  </React.Fragment>
 );
 
 export const RedirectToHome = () => (
-  <Redirect to={'/home'}/>
+  <React.Fragment>
+    <Redirect to={'/home'}/>
+    <Home/>
+  </React.Fragment>
 );
 
 // 2 Set of Routes for userLoggedIn and userNotLoggedIn
@@ -26,7 +34,7 @@ const routeConfig = (isLoggedIn) => {
       },
       {
         path: '/',
-        component: Login,
+        component: RedirectToLogin,
         loadData: actions.getData.bind(null,'DATA_FOR_LOGIN')
       }
     ] :
@@ -39,12 +47,12 @@ const routeConfig = (isLoggedIn) => {
       },
       {
         path: '/login',
-        component: Home,
+        component: RedirectToHome,
         loadData: actions.getData.bind(null,'DATA_FOR_HOME')
       },
       {
         path: '/',
-        component: Home,
+        component: RedirectToHome,
         loadData: actions.getData.bind(null,'DATA_FOR_HOME')
       }
     ]
