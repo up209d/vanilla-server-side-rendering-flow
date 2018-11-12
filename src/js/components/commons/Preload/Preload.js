@@ -2,7 +2,7 @@ import React from 'react';
 import {
   Grid,
   CircularProgress
-} from 'material-ui';
+} from '@material-ui/core';
 
 const Preload = props => {
   const { size } = props;

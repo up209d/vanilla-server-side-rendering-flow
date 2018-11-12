@@ -1,4 +1,12 @@
 export default {
-  default: {},
-  custom: {}
+  default: {
+    typography: {
+      useNextVariants: true
+    }
+  },
+  custom: {
+    typography: {
+      useNextVariants: true
+    }
+  }
 }

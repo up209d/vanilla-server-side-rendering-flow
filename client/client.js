@@ -20,7 +20,7 @@ import { AppContainer, hot, setConfig } from 'react-hot-loader';
 setConfig({ logLevel: 'debug' });
 
 // Material UI
-// const createGenerateClassName = require('material-ui/styles').createGenerateClassName;
+// const createGenerateClassName = require('@material-ui/core/styles').createGenerateClassName;
 // const createGenerateClassName = () => {
 //   let counter = 0;
 //   return (rule, sheet) => {

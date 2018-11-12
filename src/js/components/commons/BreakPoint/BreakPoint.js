@@ -1,5 +1,5 @@
 import React from 'react';
-import { withWidth } from 'material-ui';
+import { withWidth } from '@material-ui/core';
 
 class BreakPoint extends React.Component {
   state = {}

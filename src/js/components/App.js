@@ -5,7 +5,7 @@ import {
   CssBaseline,
   MuiThemeProvider,
   Button
-} from 'material-ui';
+} from '@material-ui/core';
 
 import Breakpoint from 'js/components/commons/BreakPoint/BreakPoint';
 

@@ -1,14 +1,13 @@
 import React from 'react';
 import injectSheet from 'react-jss';
 import {
-  withStyles,
   Grid,
   FormControl,
   TextField,
   Button,
   CircularProgress,
   Typography
-} from 'material-ui';
+} from '@material-ui/core';
 
 import utils from 'js/utils';
 
@@ -42,10 +41,10 @@ class Login extends React.Component{
           <Grid container justify={'center'} alignItems={'center'}>
             <img width={100} src={require('images/logo.svg')} alt={'logo'}/>
           </Grid>
-          <Typography align={'center'} variant={'display1'} color={'primary'}>LOGIN</Typography>
+          <Typography align={'center'} variant={'h1'} color={'primary'}>LOGIN</Typography>
           {
             props.ui.alert.message && (
-              <Typography align={'center'} variant={'title'} color={'secondary'}>{props.ui.alert.message}</Typography>
+              <Typography align={'center'} variant={'h6'} color={'secondary'}>{props.ui.alert.message}</Typography>
             )
           }
           <form onSubmit={this.handleSubmit}>
@@ -68,7 +67,7 @@ class Login extends React.Component{
                 inputRef={password => this.password = password}
                 type={'password'}
               />
-              <Button type={'submit'} className={classes.button} fullWidth color={'primary'} variant={'raised'} disabled={props.auth.isRequesting}>
+              <Button type={'submit'} className={classes.button} fullWidth color={'primary'} variant={'contained'} disabled={props.auth.isRequesting}>
                 {props.auth.isRequesting ? (
                   <CircularProgress size={12}/>
                 ) : (

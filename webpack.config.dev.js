@@ -8,6 +8,7 @@ import HTMLWebpackPlugin from 'html-webpack-plugin';
 import AddAssetHtmlPlugin from 'add-asset-html-webpack-plugin';
 import CopyWebpackPlugin from 'copy-webpack-plugin';
 import SpeedMeasurePlugin from 'speed-measure-webpack-plugin';
+import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 
 import ReactJssHmrPlugin from 'react-jss-hmr/webpack';
 
@@ -15,9 +16,12 @@ const webpackConfig = {
   devtool: 'eval',
   mode: 'development',
   performance: {
-    hints: false
+    hints: 'warning',
+    maxEntrypointSize: 8192000,
+    maxAssetSize: 8192000
   },
-  cache: false,
+  // Boost the re-update bundle
+  cache: true,
   externals: {},
   watch: true,
   watchOptions: {
@@ -35,6 +39,8 @@ const webpackConfig = {
     ]
   },
   plugins: [
+    // Analyzer the bundle
+    // new BundleAnalyzerPlugin(),
     new ResetRequireCache(),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.DefinePlugin({
@@ -158,7 +164,10 @@ const webpackConfig = {
             test: /ansi/,
             use: [
               {
-                loader: 'babel-loader'
+                loader: 'babel-loader?cacheCompression=true',
+                options: {
+                  cacheDirectory: true
+                }
               }
             ]
           },
@@ -168,7 +177,10 @@ const webpackConfig = {
             exclude: [/node_modules/],
             use: [
               {
-                loader: 'babel-loader'
+                loader: 'babel-loader?cacheCompression=true',
+                options: {
+                  cacheDirectory: true
+                }
               }
             ]
           },
@@ -329,10 +341,11 @@ ResetRequireCache.prototype.apply = function (compiler) {
     compiler.hooks.done.tap('ResetRequireCache',stats => {
       stats.compilation.fileDependencies.forEach(dependency => {
         if (dependency.match(/(\/src\/)(.*)\.(jsx?)$/) !== null) {
-          console.log('- Clear Cache - : ', dependency);
+          // console.log('- Clear Cache - : ', dependency);
           delete require.cache[dependency];
         }
       });
+      console.log(('***\n\n\nCleared all src modules!!! See webpack.config for more info\n\n\n***').toUpperCase());
     })
   } else {
     // Webpack 3 Fallback
@@ -341,14 +354,15 @@ ResetRequireCache.prototype.apply = function (compiler) {
       // Clear the cache if of all file in ./src folder
       stats.compilation.fileDependencies.forEach(dependency => {
         if (dependency.match(/(\/src\/)(.*)\.(jsx?)$/) !== null) {
-          console.log('- Clear Cache - : ', dependency);
+          // console.log('- Clear Cache - : ', dependency);
           delete require.cache[dependency];
         }
       });
+      console.log(('***\n\n\nCleared all src modules!!! See webpack.config for more info\n\n\n***').toUpperCase());
     });
   }
 };
 
 // Just use it when needed since it is not up to date with webpack 4
-const SMP = new SpeedMeasurePlugin();
+// const SMP = new SpeedMeasurePlugin();
 export default webpackConfig;

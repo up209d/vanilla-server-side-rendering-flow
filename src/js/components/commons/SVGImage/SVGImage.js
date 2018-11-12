@@ -4,11 +4,10 @@ import utils from 'js/utils';
 import injectSheet from 'react-jss';
 
 import {
-  withStyles,
   Grid,
   CircularProgress,
   Fade
-} from 'material-ui';
+} from '@material-ui/core';
 
 const styles = theme => ({
   svg: {

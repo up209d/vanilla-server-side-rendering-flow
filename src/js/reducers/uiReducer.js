@@ -1,5 +1,5 @@
 import actionTypes from 'js/actionTypes';
-import { createMuiTheme } from 'material-ui';
+import { createMuiTheme } from '@material-ui/core';
 import themes from 'js/themes';
 
 export const uiInitialState = {

@@ -454,7 +454,7 @@ portFinder.getPort((err, port) => {
 //   const storeGenerator = require('js/store').default;
 //   const ServerRouter = require('js/router').ServerRouter;
 //   const SheetsRegistry = require('react-jss').SheetsRegistry;
-//   const createGenerateClassName = require('material-ui/styles').createGenerateClassName;
+//   const createGenerateClassName = require('@material-ui/core/styles').createGenerateClassName;
 //   const generateClassName = createGenerateClassName();
 //
 //   let store = storeGenerator(initialState);
