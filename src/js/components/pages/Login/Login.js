@@ -86,4 +86,4 @@ class Login extends React.Component{
   }
 };
 
-export default withRouter(utils.getConnectAllStateActions(injectSheet(style)(Login)));
+export default utils.getConnectAllStateActionsWithRouter(injectSheet(style)(Login));

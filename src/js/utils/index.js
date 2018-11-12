@@ -6,6 +6,7 @@ import axios from 'axios';
 import actions from 'js/actions';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { withRouter } from 'react-router-dom';
 
 const utils = {
   generateUID: function() {
@@ -28,6 +29,9 @@ const utils = {
   },
   getConnectAllStateActions: function(Component) {
     return connect(utils.getAllStates(),utils.getAllActions())(Component);
+  },
+  getConnectAllStateActionsWithRouter: function(Component) {
+    return withRouter(connect(utils.getAllStates(),utils.getAllActions())(Component));
   },
   createFetch: function(auth = {}) {
     let currentOptions = process.env.BROWSER ?
@@ -83,6 +87,57 @@ const utils = {
   isBreakpointDown: (breakpoint,currentBreakpoint) => {
     let ref = ['xs','sm','md','lg','xl'];
     return ref.indexOf(breakpoint) >= ref.indexOf(currentBreakpoint);
+  },
+  toggleClassNames: (object = {}) => {
+    let classNames = [];
+    if (object instanceof Array) {
+      classNames = object.map(function(key){
+        if (key) {
+          return key;
+        }
+      });
+      return classNames.join(' ');
+    } else {
+      classNames = Object.keys(object).map(function(key){
+        if (object[key]) {
+          return key;
+        }
+      });
+      return classNames.join(' ');
+    }
+  },
+  isIE: function() {
+    if (process.env.BROWSER) {
+      let isIE = !!navigator.userAgent.match(/Trident/g) || !!navigator.userAgent.match(/MSIE/g);
+      return isIE;
+    } else {
+      return false;
+    }
+  },
+  isSafari: function() {
+    if (process.env.BROWSER) {
+      let isSafari = !!navigator.userAgent.match(/safari/gi) || !!navigator.userAgent.match(/safari/gi);
+      let isChrome = !!navigator.userAgent.match(/chrome/gi) || !!navigator.userAgent.match(/chrome/gi) || !!navigator.userAgent.match(/CriOS/gi);
+      return isSafari && !isChrome;
+    } else {
+      return false;
+    }
+  },
+  isChrome: function() {
+    if (process.env.BROWSER) {
+      let isChrome = !!navigator.userAgent.match(/chrome/gi) || !!navigator.userAgent.match(/chrome/gi) || !!navigator.userAgent.match(/CriOS/gi);
+      return isChrome;
+    } else {
+      return false;
+    }
+  },
+  isFireFox: function() {
+    if (process.env.BROWSER) {
+      let isFireFox = !!navigator.userAgent.match(/firefox/gi) || !!navigator.userAgent.match(/firefox/gi);
+      return isFireFox;
+    } else {
+      return false;
+    }
   }
 };
 

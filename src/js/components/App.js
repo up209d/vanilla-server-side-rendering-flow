@@ -119,4 +119,4 @@ if (process.env.BROWSER) {
 // so its 'match' is always the root which is '/' in any case
 // if we want to get match we should do withRouter from the page Component point
 // for exp: withRouter(Home | Login)
-export default withRouter(utils.getConnectAllStateActions(App));
+export default utils.getConnectAllStateActionsWithRouter(App);

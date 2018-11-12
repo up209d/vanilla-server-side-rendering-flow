@@ -1,15 +1,15 @@
 import { combineReducers } from 'redux';
-import { routerReducer } from 'react-router-redux';
+import { connectRouter } from 'connected-react-router';
 
 import { ui,    uiInitialState } from './uiReducer';
 import { auth,  authInitialState } from './authReducer';
 import { data,  dataInitialState } from './dataReducer';
 
-export const appReducers = combineReducers({
+export const appReducers = history => combineReducers({
+  router: connectRouter(history),
   ui,
   auth,
-  data,
-  routing: routerReducer
+  data
 });
 
 export const initialStates = {

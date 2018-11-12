@@ -2,7 +2,7 @@ import history from 'js/history';
 import utils from 'js/utils';
 
 import { createStore,applyMiddleware,compose } from 'redux';
-import { routerMiddleware } from 'react-router-redux';
+import { routerMiddleware } from 'connected-react-router';
 import thunk from 'redux-thunk';
 
 import { appReducers, initialStates } from 'js/reducers';
@@ -22,7 +22,7 @@ const developmentStore = preloadedState => {
   const getUID = new utils.generateUID();
 
   const store = createStore(
-    appReducers,
+    appReducers(history),
     {
       ...initialStates,
       ...preloadedState
@@ -46,7 +46,7 @@ const developmentStore = preloadedState => {
     module.hot.accept('./reducers', () => {
       console.log('[HMR]: replaced --> [Reducer]');
       const nextRootReducer = require('./reducers').appReducers;
-      store.replaceReducer(nextRootReducer);
+      store.replaceReducer(nextRootReducer(history));
       console.log('Dev Store Replaced: ', store.getState());
     })
   }
@@ -58,7 +58,7 @@ const developmentStore = preloadedState => {
 const productionStore = preloadedState => {
 	const getUID = new utils.generateUID();
   const store = createStore(
-    appReducers,
+    appReducers(history),
     {
       ...initialStates,
       ...preloadedState

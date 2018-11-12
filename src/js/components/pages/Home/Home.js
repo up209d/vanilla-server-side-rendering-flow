@@ -44,4 +44,4 @@ class Home extends React.Component {
   }
 };
 
-export default withRouter(utils.getConnectAllStateActions(injectSheet(style)(Home)));
+export default utils.getConnectAllStateActionsWithRouter(injectSheet(style)(Home));

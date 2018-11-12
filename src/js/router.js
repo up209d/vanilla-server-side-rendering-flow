@@ -2,11 +2,10 @@ import React from 'react';
 
 import { Provider } from 'react-redux';
 import { HashRouter, StaticRouter } from 'react-router-dom';
-import { ConnectedRouter } from 'react-router-redux';
+import { ConnectedRouter } from 'connected-react-router';
 import { JssProvider, jss } from 'react-jss/lib';
 
 import basename from 'base.config';
-import customHistory from './history';
 
 import App from './components/App';
 
@@ -22,7 +21,7 @@ const createCustomGenerateClassName = (random = '') => {
 export const ClientRouter = props => {
   return (
     <Provider store={props.store}>
-      <ConnectedRouter history={customHistory}>
+      <ConnectedRouter history={props.history}>
         <JssProvider jss={jss} generateClassName={createCustomGenerateClassName()}>
           <App/>
         </JssProvider>
