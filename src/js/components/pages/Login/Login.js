@@ -9,6 +9,10 @@ import {
   Typography
 } from '@material-ui/core';
 
+import {
+  withRouter
+} from 'react-router-dom';
+
 import utils from 'js/utils';
 
 const style = theme => ({
@@ -82,4 +86,4 @@ class Login extends React.Component{
   }
 };
 
-export default utils.getConnectAllStateActions(injectSheet(style)(Login));
+export default withRouter(utils.getConnectAllStateActions(injectSheet(style)(Login)));

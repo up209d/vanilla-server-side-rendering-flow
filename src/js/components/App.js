@@ -114,4 +114,9 @@ if (process.env.BROWSER) {
   console.log('HASH: ',__webpack_hash__);
 }
 
+// WithRouter is outside of react-router Switch
+// We just get the 'pathname' and do 'matchPath' to detect the router change
+// so its 'match' is always the root which is '/' in any case
+// if we want to get match we should do withRouter from the page Component point
+// for exp: withRouter(Home | Login)
 export default withRouter(utils.getConnectAllStateActions(App));
