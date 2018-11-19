@@ -157,6 +157,17 @@ compiler.run((err,currentStats) => {
 
   app.use(cookieParser());
 
+  function getTokenFromRequest(req) {
+    if (req.headers['Authorization'] && req.headers['Authorization'].split(' ')[0] === 'Bearer') {
+      return req.headers['Authorization'].split(' ')[1];
+    } else if (req.query && req.query.token) {
+      return req.query.token;
+    } else if (req.cookies.token) {
+      return req.cookies.token;
+    }
+    return null;
+  }
+
   // USER AUTHENTICATION
   app.use(basename + '/auth', express.json());
   app.use(basename + '/auth', express.urlencoded({extended: false})); // body-parser options
@@ -166,7 +177,9 @@ compiler.run((err,currentStats) => {
   app.use(basename + '/check', express.urlencoded({extended: false})); // body-parser options
   app.use(basename + '/check',
     expressJwt({
-      secret: hostConfig.secret
+      secret: hostConfig.secret,
+      credentialsRequired: true,
+      getToken: getTokenFromRequest
     }),
     // If the expressJwt return error, treat it here
     function (err, req, res, next) {
@@ -188,7 +201,9 @@ compiler.run((err,currentStats) => {
   app.use(basename + '/logout', express.urlencoded({extended: false})); // body-parser options
   app.use(basename + '/logout',
     expressJwt({
-      secret: hostConfig.secret
+      secret: hostConfig.secret,
+      credentialsRequired: true,
+      getToken: getTokenFromRequest
     }),
     // If the expressJwt return error, treat it here
     function (err, req, res, next) {
@@ -210,7 +225,9 @@ compiler.run((err,currentStats) => {
   app.use(basename + '/data', express.urlencoded({extended: false}));
   app.use(basename + '/data',
     expressJwt({
-      secret: hostConfig.secret
+      secret: hostConfig.secret,
+      credentialsRequired: true,
+      getToken: getTokenFromRequest
     }),
     // Skip error from JwtExpress
     function (err, req, res, next) {
