@@ -174,7 +174,11 @@ app.use(
 );
 
 // HOT MIDDLEWARE TO EXPRESS
-app.use(webpackHotMiddleware(compiler));
+// NOTE: The options here should match with the option in entry point of Webpack configuration
+app.use(webpackHotMiddleware(compiler,{
+  path: basename + '/__webpack_hmr',
+  reload: 'true'
+}));
 
 
 // globalStats will keep up to date with stats from webpack every time its recompiled

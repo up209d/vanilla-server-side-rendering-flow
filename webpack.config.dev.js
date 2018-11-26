@@ -29,7 +29,7 @@ const webpackConfig = {
   },
   entry: {
     appBundle: [
-      'webpack-hot-middleware/client?reload=true',
+      'webpack-hot-middleware/client?reload=true&path=' + basename + '/__webpack_hmr',
       'react-hot-loader/patch',
       './client/client.js'
     ],

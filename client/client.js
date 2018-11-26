@@ -4,6 +4,15 @@ require('babel-polyfill');
 // Require Global CSS (For Client Only)
 require('scss/app.scss');
 
+// Webpack Hot Middleware
+// require('event-source-polyfill');
+// const hotClient = require('webpack-hot-middleware/client?reload=true&path=/ipsos/__webpack_hmr');
+// hotClient.subscribe(function (event) {
+//   if (event.action === 'reload') {
+//     window.location.reload()
+//   }
+// });
+
 let ClientRouter = require('js/router').ClientRouter;
 
 import storeGenerator from 'js/store';
