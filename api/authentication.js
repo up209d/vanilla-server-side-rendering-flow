@@ -59,8 +59,10 @@ export function authentication(req, res) {
       .json({
         message: res.statusCode + ': You passed!!!',
         user: req.session.users[req.body.user],
-        session: req.cookies['connect.sid'],
-        token: token
+        // It is not nessesary to set Authorization here as we use cookie to get token and connect.sid
+        // See getTokenFromRequest from server...js
+        // session: req.cookies['connect.sid'],
+        // token: token
       });
   }
   // Otherwise, send failed message

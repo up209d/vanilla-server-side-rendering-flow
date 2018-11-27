@@ -352,7 +352,7 @@ app.use((req, res, next) => {
       ];
 
       routeConfig(store.getState().auth.isLoggedIn).some(route => {
-        const match = matchPath(req.path, route);
+        const match = matchPath(utils.urlWithoutBase(req.path), route);
         if (match && !!route.loadData) {
           // DATA: DATA FOR EACH ROUTE
           // in complex app, each route is a small app in our whole app

@@ -16,6 +16,21 @@ const utils = {
     }
   },
   ..._,
+  isSet: function(i) {
+    return typeof i !== 'undefined';
+  },
+  // Url with Base for AJAX calling
+  urlWithBase: function(url) {
+    if (url) {
+      url = url.indexOf('/') === 0 ? url.substr(1,url.length) : url;
+    } else {
+      url = '';
+    }
+    return basename ? basename + '/' + url : '/' + url;
+  },
+  urlWithoutBase: function(urlWithBase) {
+    return urlWithBase.replace(basename,'');
+  },
   getAllStates: function(additionalData) {
     return state => ({
       ...state

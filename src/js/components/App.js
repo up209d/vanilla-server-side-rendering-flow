@@ -51,7 +51,7 @@ class App extends React.Component {
       return matchPath(prevState.location.pathname, route);
     });
 
-    if (currentRoute.component !== prevRoute.component) {
+    if (currentRoute.name !== prevRoute.name) {
       // Beware of JWT, if it made with 'notBefore'
       // And this dispatch call in the time JWT is not ready to work
       // Thus, this request wont work as well
@@ -68,6 +68,12 @@ class App extends React.Component {
             console.log('Data for ' + currentRoute.path + ' is failed!')
           });
       }
+
+      // Refresh DATA FOR APP if User is logged in / logged out
+      if (nextProps.auth.isLoggedIn !== prevState.auth.isLoggedIn) {
+        nextProps.getData('DATA_FOR_APP');
+      }
+
       return {
         ...prevState,
         ...nextProps
