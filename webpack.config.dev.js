@@ -16,7 +16,7 @@ const webpackConfig = {
   devtool: 'eval',
   mode: 'development',
   performance: {
-    hints: 'warning',
+    hints: false,
     maxEntrypointSize: 8192000,
     maxAssetSize: 8192000
   },

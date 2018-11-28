@@ -28,11 +28,14 @@ const routeConfig = (isLoggedIn) => {
     // WHEN USER IS NOT LOGGED IN
     [
       {
+        // MAKE SURE THE 'name' IS UNIQUE (KEY)
+        name: 'login',
         path: '/login',
         component: Login,
         loadData: actions.getData.bind(null,'DATA_FOR_LOGIN')
       },
       {
+        name: 'root',
         path: '/',
         component: RedirectToLogin,
         loadData: actions.getData.bind(null,'DATA_FOR_LOGIN')
@@ -41,16 +44,19 @@ const routeConfig = (isLoggedIn) => {
     // WHEN USER IS ALREADY LOGGED IN
     [
       {
+        name: 'home',
         path: '/home',
         component: Home,
         loadData: actions.getData.bind(null,'DATA_FOR_HOME')
       },
       {
+        name: 'login',
         path: '/login',
         component: RedirectToHome,
         loadData: actions.getData.bind(null,'DATA_FOR_HOME')
       },
       {
+        name: 'root',
         path: '/',
         component: RedirectToHome,
         loadData: actions.getData.bind(null,'DATA_FOR_HOME')

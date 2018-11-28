@@ -19,9 +19,17 @@ import portFinder from 'portfinder';
 import webpack from 'webpack';
 import webpackDevMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
-import webpackConfig from 'webpack.config.dev';
 
-const compiler = webpack(webpackConfig);
+// WEBPACK CONFIG
+import webpackConfig from 'webpack.config.dev';
+import webpackConfigWithDLL from 'webpack.config.dev.dll';
+
+// CHECK FOR DLL USING OR NOT
+if (process.argv.includes('--dll')) {
+  console.log('\n\n\n/** START WITH EXTERNAL DLL **/\n\n\n');
+}
+
+const compiler = process.argv.includes('--dll') ? webpack(webpackConfigWithDLL) : webpack(webpackConfig);
 
 // EXPRESS SERVER
 import express from 'express';

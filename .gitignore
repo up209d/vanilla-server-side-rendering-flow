@@ -22,3 +22,4 @@ dist/
 data/journal
 data/diagnostic.data
 stats.json
+lib
