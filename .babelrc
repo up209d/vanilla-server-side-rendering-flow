@@ -22,9 +22,6 @@
     "development": {
       "plugins": [
         [
-          "react-hot-loader/babel"
-        ],
-        [
           "direct-import",
           {
             "modules": [
