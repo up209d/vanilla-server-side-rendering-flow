@@ -1,8 +1,8 @@
 // Babel Polyfill for all dependencies importing
-require('babel-polyfill');
+require('@babel/polyfill');
 
 // Babel Register to enable Babel transform in all dependencies importing
-require('babel-register');
+require('@babel/register');
 
 // Set ENVIRONMENT to DEVELOPMENT
 process.env.NODE_ENV = 'development';

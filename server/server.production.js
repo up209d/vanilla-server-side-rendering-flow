@@ -6,11 +6,11 @@ import fs from 'fs';
 const babelConfig = JSON.parse(fs.readFileSync('.babelrc'));
 
 // Babel Register to enable Babel transform in all dependencies importing
-import babelRegister from 'babel-register';
+import babelRegister from '@babel/register';
 babelRegister(babelConfig);
 
 // Babel Polyfill for all dependencies importing
-require('babel-polyfill');
+require('@babel/polyfill');
 
 // BASE PATH OF APP
 import path from 'path';

@@ -1,3 +1,3 @@
-import babelPolyfill from 'babel-polyfill';
+var polyfill = require('@babel/polyfill');
 
-console.log(babelPolyfill);
+console.log('HELLO WORLD',polyfill);

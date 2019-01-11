@@ -6,7 +6,7 @@ var _fs = require('fs');
 
 var _fs2 = _interopRequireDefault(_fs);
 
-var _babelRegister = require('babel-register');
+var _babelRegister = require('@babel/register');
 
 var _babelRegister2 = _interopRequireDefault(_babelRegister);
 
@@ -84,7 +84,7 @@ var babelConfig = JSON.parse(_fs2.default.readFileSync('.babelrc'));
 (0, _babelRegister2.default)(babelConfig);
 
 // Babel Polyfill for all dependencies importing
-require('babel-polyfill');
+require('@babel/polyfill');
 
 // BASE PATH OF APP
 

@@ -1,10 +1,10 @@
 {
   "presets": [
     [
-      "env",
+      "@babel/env",
       {
         "loose": true,
-        "target": {
+        "targets": {
           "browsers": [
             "last 2 versions",
             "ie >= 10",
@@ -12,25 +12,52 @@
           ]
         },
         "include": [
-          "transform-es2015-classes"
+          "transform-classes"
         ]
       }
     ],
-    "react",
-    "stage-0"
+    "@babel/react"
   ],
   "env": {
     "development": {
       "plugins": [
-        ["react-hot-loader/babel"],
-        ["direct-import", ["@material-ui/core","@material-ui/icons"]],
-        ["transform-decorators-legacy"]
+        [
+          "react-hot-loader/babel"
+        ],
+        [
+          "direct-import",
+          {
+            "modules": [
+              "@material-ui/core",
+              "@material-ui/icons"
+            ]
+          }
+        ],
+        [
+          "@babel/proposal-class-properties"
+        ],
+        [
+          "@babel/proposal-decorators", { "legacy": true }
+        ]
       ]
     },
     "production": {
       "plugins": [
-        ["direct-import", ["@material-ui/core","@material-ui/icons"]],
-        ["transform-decorators-legacy"]
+        [
+          "direct-import",
+          {
+            "modules": [
+              "@material-ui/core",
+              "@material-ui/icons"
+            ]
+          }
+        ],
+        [
+          "@babel/proposal-class-properties"
+        ],
+        [
+          "@babel/proposal-decorators", { "legacy": true }
+        ]
       ]
     }
   }

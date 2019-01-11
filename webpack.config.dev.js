@@ -34,7 +34,7 @@ const webpackConfig = {
       './client/client.js'
     ],
     vendorBundle: [
-      'babel-polyfill',
+      '@babel/polyfill',
       './src/js/vendors/index.js'
     ]
   },

@@ -1,5 +1,5 @@
 // Babel Polyfill for all dependencies importing
-require('babel-polyfill');
+require('@babel/polyfill');
 
 // Require Global CSS (For Client Only)
 require('scss/app.scss');
