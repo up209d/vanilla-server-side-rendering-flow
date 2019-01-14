@@ -10,10 +10,7 @@
             "ie >= 10",
             "safari >= 7"
           ]
-        },
-        "include": [
-          "transform-classes"
-        ]
+        }
       }
     ],
     "@babel/react"
@@ -31,10 +28,16 @@
           }
         ],
         [
+          "@babel/proposal-decorators", { "legacy": true }
+        ],
+        [
           "@babel/proposal-class-properties"
         ],
         [
-          "@babel/proposal-decorators", { "legacy": true }
+          "@babel/transform-classes"
+        ],
+        [
+          "@babel/transform-regenerator"
         ]
       ]
     },
@@ -50,10 +53,16 @@
           }
         ],
         [
+          "@babel/proposal-decorators", { "legacy": true }
+        ],
+        [
           "@babel/proposal-class-properties"
         ],
         [
-          "@babel/proposal-decorators", { "legacy": true }
+          "@babel/transform-classes"
+        ],
+        [
+          "@babel/transform-regenerator"
         ]
       ]
     }
