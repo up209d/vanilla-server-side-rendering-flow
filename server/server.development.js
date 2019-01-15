@@ -37,6 +37,18 @@ import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import expressJwt from 'express-jwt';
 import basicAuth from 'basic-auth';
+import compression from 'compression';
+
+expressJwt.getToken = function(req) {
+  if (req.headers['Authorization'] && req.headers['Authorization'].split(' ')[0] === 'Bearer') {
+    return req.headers['Authorization'].split(' ')[1];
+  } else if (req.query && req.query.token) {
+    return req.query.token;
+  } else if (req.cookies.token) {
+    return req.cookies.token;
+  }
+  return null;
+};
 
 // API
 import { authentication, checkAuthentication, dropAuthentication, getData } from 'api/authentication';
@@ -62,30 +74,29 @@ app.use(session({
 }));
 
 app.use(cookieParser());
+app.use(express.json());
+app.use(express.urlencoded({extended: false}));
 
-function getTokenFromRequest(req) {
-  if (req.headers['Authorization'] && req.headers['Authorization'].split(' ')[0] === 'Bearer') {
-    return req.headers['Authorization'].split(' ')[1];
-  } else if (req.query && req.query.token) {
-    return req.query.token;
-  } else if (req.cookies.token) {
-    return req.cookies.token;
+// Gzip Compression
+app.use(compression({
+  filter: (req,res) => {
+    if (req.headers['x-no-compression']) {
+      // don't compress responses with this request header
+      return false
+    }
+    // fallback to standard filter function
+    return compression.filter(req, res)
   }
-  return null;
-}
+}));
 
 // USER AUTHENTICATION
-app.use(basename + '/auth', express.json());
-app.use(basename + '/auth', express.urlencoded({extended: false})); // body-parser options
 app.use(basename + '/auth', authentication);
 
-app.use(basename + '/check', express.json());
-app.use(basename + '/check', express.urlencoded({extended: false})); // body-parser options
 app.use(basename + '/check',
   expressJwt({
     secret: hostConfig.secret,
     credentialsRequired: true,
-    getToken: getTokenFromRequest
+    getToken: expressJwt.getToken
   }),
   // If the expressJwt return error, treat it here
   function (err, req, res, next) {
@@ -103,13 +114,11 @@ app.use(basename + '/check',
   checkAuthentication
 );
 
-app.use(basename + '/logout', express.json());
-app.use(basename + '/logout', express.urlencoded({extended: false})); // body-parser options
 app.use(basename + '/logout',
   expressJwt({
     secret: hostConfig.secret,
     credentialsRequired: true,
-    getToken: getTokenFromRequest
+    getToken: expressJwt.getToken
   }),
   // If the expressJwt return error, treat it here
   function (err, req, res, next) {
@@ -127,13 +136,11 @@ app.use(basename + '/logout',
   dropAuthentication
 );
 
-app.use(basename + '/data', express.json());
-app.use(basename + '/data', express.urlencoded({extended: false}));
 app.use(basename + '/data',
   expressJwt({
     secret: hostConfig.secret,
     credentialsRequired: true,
-    getToken: getTokenFromRequest
+    getToken: expressJwt.getToken
   }),
   // Skip error from JwtExpress
   function (err, req, res, next) {
@@ -210,6 +217,7 @@ Module.prototype.require = function() {
     // FALLBACK OF UNSUPPORT CASES ( NON JS & JSON FILES)
     // THE FALLBACK WILL RETURN THE ASSESTS PATH MATCHED WITH WEBPACK DOES IN THE BUNDLE
     let currentStats = getStats();
+
     if (currentStats) {
       // MAKE A REF LIST OF ASSETS REQUIRE IN SERVER SIDE
       let stats = currentStats;
@@ -218,7 +226,9 @@ Module.prototype.require = function() {
       // Just need all module from of our src directory
       let srcModules = currentModules.filter(eachModule => {
         return typeof eachModule['id'] === 'string' &&
+          eachModule['id'] &&
           eachModule['id'].indexOf('./src/') === 0 &&
+          eachModule['source'] &&
           eachModule['source'].indexOf('module.exports') === 0
       });
 
@@ -267,14 +277,16 @@ Module.prototype.require = function() {
       }));
 
       // Create a object reference key by the userRequest and the source context of that userRequest
-      let srcReasonsByRequest = utils.keyBy(srcReasons,function(srcReason){
-        return srcReason['userRequest'] + '-----' + srcReason['modulePath'];
+      let srcReasonsByRequest = utils.keyBy(srcReasons, function (srcReason) {
+        // return srcReason['userRequest'] + '-----' + srcReason['modulePath'];
+        return srcReason['userRequest'];
       });
 
       // From that we can easily select the reason
       // by currentPath as userRequest
       // by contextId as the source context of this require
-      let foundReason = srcReasonsByRequest[currentPath + '-----' + contextId];
+      // let foundReason = srcReasonsByRequest[currentPath + '-----' + contextId];
+      let foundReason = srcReasonsByRequest[currentPath];
       return foundReason ? foundReason['source'] : '';
     } else {
       console.log('REQUIRE ERROR: ',err); //err

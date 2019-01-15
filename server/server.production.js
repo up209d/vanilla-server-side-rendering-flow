@@ -3,10 +3,12 @@ process.env.NODE_ENV = 'production';
 
 // FILE SYSTEM
 import fs from 'fs';
+
 const babelConfig = JSON.parse(fs.readFileSync('.babelrc'));
 
 // Babel Register to enable Babel transform in all dependencies importing
 import babelRegister from '@babel/register';
+
 babelRegister(babelConfig);
 
 // Babel Polyfill for all dependencies importing
@@ -35,6 +37,18 @@ import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import expressJwt from 'express-jwt';
 import basicAuth from 'basic-auth';
+import compression from 'compression';
+
+expressJwt.getToken = function (req) {
+  if (req.headers['Authorization'] && req.headers['Authorization'].split(' ')[0] === 'Bearer') {
+    return req.headers['Authorization'].split(' ')[1];
+  } else if (req.query && req.query.token) {
+    return req.query.token;
+  } else if (req.cookies.token) {
+    return req.cookies.token;
+  }
+  return null;
+};
 
 // API
 import {authentication, checkAuthentication, dropAuthentication, getData} from 'api/authentication';
@@ -46,7 +60,7 @@ import utils from 'js/utils';
 const app = express();
 
 // COMPILE WEBPACK
-compiler.run((err,currentStats) => {
+compiler.run((err, currentStats) => {
 
   // MAKE A REF LIST OF ASSETS REQUIRE IN SERVER SIDE
   let stats = currentStats.toJson();
@@ -55,39 +69,41 @@ compiler.run((err,currentStats) => {
   // Just need all module from of our src directory
   let srcModules = currentModules.filter(eachModule => {
     return typeof eachModule['id'] === 'string' &&
+      eachModule['id'] &&
       eachModule['id'].indexOf('./src/') === 0 &&
+      eachModule['source'] &&
       eachModule['source'].indexOf('module.exports') === 0
   });
 
   // Get References of all modules in our src folder
   // Key the References by module ID
   let srcModulesById = utils.keyBy(
-   srcModules.map(srcModule => {
-    // we need only the source & id
-    let getSource = function() {
-      let module = {};
-      let __webpack_public_path__ = stats.publicPath;
-      return srcModule['source'] ? eval(srcModule['source']) : null;
-    };
+    srcModules.map(srcModule => {
+      // we need only the source & id
+      let getSource = function () {
+        let module = {};
+        let __webpack_public_path__ = stats.publicPath;
+        return srcModule['source'] ? eval(srcModule['source']) : null;
+      };
 
-    let id = srcModule.id;
-    let source = getSource();
-    let name = id.substring(id.lastIndexOf('/') + 1, id.length);
-    // WEBPACK BUNDLED ASSETS FILE TYPE REFERENCES
-    // let ext = source.indexOf('data:') !== -1 ? 'uri' : name.substring(name.lastIndexOf('.') + 1, name.length);
-    // let fileType = getFileType(ext);
-    // let contentType = fileType.contentType;
+      let id = srcModule.id;
+      let source = getSource();
+      let name = id.substring(id.lastIndexOf('/') + 1, id.length);
+      // WEBPACK BUNDLED ASSETS FILE TYPE REFERENCES
+      // let ext = source.indexOf('data:') !== -1 ? 'uri' : name.substring(name.lastIndexOf('.') + 1, name.length);
+      // let fileType = getFileType(ext);
+      // let contentType = fileType.contentType;
 
-    return {
-      id,
-      name,
-      // ext,
-      // contentType,
-      source,
-      reasons: srcModule.reasons ? ( srcModule.reasons.length ? srcModule.reasons : [srcModule.reasons] ) : []
-    }
-  }),
-  'id'
+      return {
+        id,
+        name,
+        // ext,
+        // contentType,
+        source,
+        reasons: srcModule.reasons ? ( srcModule.reasons.length ? srcModule.reasons : [srcModule.reasons] ) : []
+      }
+    }),
+    'id'
   );
 
   // Collect all Reason of UserRequest in each of our src Module
@@ -104,21 +120,22 @@ compiler.run((err,currentStats) => {
   }));
 
   // Create a object reference key by the userRequest and the source context of that userRequest
-  let srcReasonsByRequest = utils.keyBy(srcReasons,function(srcReason){
-    return srcReason['userRequest'] + '-----' + srcReason['modulePath'];
+  let srcReasonsByRequest = utils.keyBy(srcReasons, function (srcReason) {
+    // return srcReason['userRequest'] + '-----' + srcReason['modulePath'];
+    return srcReason['userRequest'];
   });
 
   // HACK THE REQUIRE BY STATS
   let Module = require('module');
   let _require = Module.prototype.require;
-  Module.prototype.require = function() {
+  Module.prototype.require = function () {
     // User Request
     let currentPath = arguments[0];
     // Module ID (Full Path)
     let contextId = this.id;
     try {
       // IF JS JSON, JUST RETURN A ORIGINAL REQUIRE
-      return _require.call(this,arguments[0]);
+      return _require.call(this, arguments[0]);
     } catch (err) {
       // FALLBACK OF UNSUPPORT CASES ( NON JS & JSON FILES)
       // THE FALLBACK WILL RETURN THE ASSESTS PATH MATCHED WITH WEBPACK DOES IN THE BUNDLE
@@ -130,7 +147,8 @@ compiler.run((err,currentStats) => {
 
       // So we have currentPath as userRequest
       // and we have contextId as full path of the source context of this require
-      let foundReason = srcReasonsByRequest[currentPath + '-----' + contextId];
+      // let foundReason = srcReasonsByRequest[currentPath + '-----' + contextId];
+      let foundReason = srcReasonsByRequest[currentPath];
       return foundReason ? foundReason['source'] : '';
     }
   };
@@ -156,30 +174,30 @@ compiler.run((err,currentStats) => {
   }));
 
   app.use(cookieParser());
+  app.use(express.json());
+  app.use(express.urlencoded({extended: false}));
 
-  function getTokenFromRequest(req) {
-    if (req.headers['Authorization'] && req.headers['Authorization'].split(' ')[0] === 'Bearer') {
-      return req.headers['Authorization'].split(' ')[1];
-    } else if (req.query && req.query.token) {
-      return req.query.token;
-    } else if (req.cookies.token) {
-      return req.cookies.token;
+  // Gzip Compression
+  app.use(compression({
+    filter: (req, res) => {
+      if (req.headers['x-no-compression']) {
+        // don't compress responses with this request header
+        return false
+      }
+      // fallback to standard filter function
+      return compression.filter(req, res)
     }
-    return null;
-  }
+  }));
+
 
   // USER AUTHENTICATION
-  app.use(basename + '/auth', express.json());
-  app.use(basename + '/auth', express.urlencoded({extended: false})); // body-parser options
   app.use(basename + '/auth', authentication);
 
-  app.use(basename + '/check', express.json());
-  app.use(basename + '/check', express.urlencoded({extended: false})); // body-parser options
   app.use(basename + '/check',
     expressJwt({
       secret: hostConfig.secret,
       credentialsRequired: true,
-      getToken: getTokenFromRequest
+      getToken: expressJwt.getToken
     }),
     // If the expressJwt return error, treat it here
     function (err, req, res, next) {
@@ -197,13 +215,11 @@ compiler.run((err,currentStats) => {
     checkAuthentication
   );
 
-  app.use(basename + '/logout', express.json());
-  app.use(basename + '/logout', express.urlencoded({extended: false})); // body-parser options
   app.use(basename + '/logout',
     expressJwt({
       secret: hostConfig.secret,
       credentialsRequired: true,
-      getToken: getTokenFromRequest
+      getToken: expressJwt.getToken
     }),
     // If the expressJwt return error, treat it here
     function (err, req, res, next) {
@@ -221,13 +237,11 @@ compiler.run((err,currentStats) => {
     dropAuthentication
   );
 
-  app.use(basename + '/data', express.json());
-  app.use(basename + '/data', express.urlencoded({extended: false}));
   app.use(basename + '/data',
     expressJwt({
       secret: hostConfig.secret,
       credentialsRequired: true,
-      getToken: getTokenFromRequest
+      getToken: expressJwt.getToken
     }),
     // Skip error from JwtExpress
     function (err, req, res, next) {
@@ -242,28 +256,28 @@ compiler.run((err,currentStats) => {
   // BASIC AUTHORIZATION
   // Put it after API Route because we gonna use BEARER AUTHORIZATION for API
   // And we gonna use Basic Authorization to access the server's assets
-  app.use(function(req,res,next){
-    const credentials = basicAuth(req);
-    if (
-      !credentials ||
-      credentials.name !== hostConfig.basicAuth.username ||
-      credentials.pass !== hostConfig.basicAuth.password
-    ) {
-      res.setHeader('WWW-Authenticate', 'Basic realm="Basic Authorization Required"');
-      return res.status(401).send('Unauthorized');
-    } else {
-      // console.log(credentials);
-      return next();
-    }
-  });
+  // app.use(function(req,res,next){
+  //   const credentials = basicAuth(req);
+  //   if (
+  //     !credentials ||
+  //     credentials.name !== hostConfig.basicAuth.username ||
+  //     credentials.pass !== hostConfig.basicAuth.password
+  //   ) {
+  //     res.setHeader('WWW-Authenticate', 'Basic realm="Basic Authorization Required"');
+  //     return res.status(401).send('Unauthorized');
+  //   } else {
+  //     // console.log(credentials);
+  //     return next();
+  //   }
+  // });
 
   // NO ACCESS TO MAIN.HTML REDIRECT BACK TO ROOT
-  app.use(basename + '/main.html',function(req,res,next){
+  app.use(basename + '/main.html', function (req, res, next) {
     res.redirect(basename ? basename : '/');
   });
 
   // SERVE SERVER STATIC ASSETS BY THIS ROUTE
-  app.use(express.static('./dist',{index: null}));
+  app.use(express.static('./dist', {index: null}));
 
   // OTHERWISE FALLBACK TO THE MAIN ROUTE HERE
   app.use((req, res, next) => {
@@ -276,7 +290,7 @@ compiler.run((err,currentStats) => {
     const matchPath = require('react-router-dom').matchPath;
 
     // Read file main.html processed by Webpack HTML Plugin
-    fs.readFile('./dist' + basename + '/main.html', 'utf-8',function(err,result) {
+    fs.readFile('./dist' + basename + '/main.html', 'utf-8', function (err, result) {
       if (err) {
         console.log(err);
         next(err);
@@ -300,7 +314,7 @@ compiler.run((err,currentStats) => {
 
       // React Router Server Side
       const ServerRouter = require('js/router').ServerRouter;
-      const randomSeed = Math.random().toString(36).substring(0,5);
+      const randomSeed = Math.random().toString(36).substring(0, 5);
 
       // Inject Cookie / Session to Store in preloadedState
       let store = storeGenerator({
@@ -322,7 +336,7 @@ compiler.run((err,currentStats) => {
       // basically for every request, here we shall check user login status
       store
         .dispatch(actions.userCheck())
-        .then(initRender,initRender);
+        .then(initRender, initRender);
 
       // Create Store and Render ReactDOM Server content and send Response out here
       function initRender() {
@@ -352,7 +366,7 @@ compiler.run((err,currentStats) => {
         // Mean that we have the store ready to render React app
         // Do all the server DOM content rendering and sending out here
         utils
-          .whenAllPromisesFinish(allFetchPromises,eachResponse => {
+          .whenAllPromisesFinish(allFetchPromises, eachResponse => {
             return eachResponse ? eachResponse.data : null;
           })
           .then((allResults) => {
@@ -411,7 +425,7 @@ compiler.run((err,currentStats) => {
         console.log('\x1b[36m', 'Server Started at Port: ', 'http://localhost:' + port);
         console.log('\x1b[36m', 'Server Started at Port: ', 'http://' + hostConfig.lan + ':' + port);
         console.log('\x1b[37m');
-        console.log('\x1b[39m','----------------------------------------------------------');
+        console.log('\x1b[39m', '----------------------------------------------------------');
         // Open Browser when Server is started
         require('opn')('http://localhost:' + port, {
           app: 'google chrome'
