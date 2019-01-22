@@ -19,13 +19,7 @@
     "development": {
       "plugins": [
         [
-          "direct-import",
-          {
-            "modules": [
-              "@material-ui/core",
-              "@material-ui/icons"
-            ]
-          }
+          "@babel/transform-modules-commonjs"
         ],
         [
           "@babel/proposal-decorators", { "legacy": true }
@@ -51,6 +45,9 @@
               "@material-ui/icons"
             ]
           }
+        ],
+        [
+          "@babel/transform-modules-commonjs"
         ],
         [
           "@babel/proposal-decorators", { "legacy": true }
