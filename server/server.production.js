@@ -12,7 +12,9 @@ import babelRegister from '@babel/register';
 babelRegister(babelConfig);
 
 // Babel Polyfill for all dependencies importing
-require('@babel/polyfill');
+// require('@babel/polyfill');
+require('core-js/stable');
+require('regenerator-runtime/runtime');
 
 // BASE PATH OF APP
 import path from 'path';

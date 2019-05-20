@@ -1,5 +1,7 @@
 // Babel Polyfill for all dependencies importing
-require('@babel/polyfill');
+// require('@babel/polyfill');
+require('core-js/stable');
+require('regenerator-runtime/runtime');
 
 // Babel Register to enable Babel transform in all dependencies importing
 require('@babel/register');

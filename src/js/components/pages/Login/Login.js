@@ -55,21 +55,27 @@ class Login extends React.Component{
             <FormControl fullWidth noValidate autoComplete={'off'}>
               <TextField
                 required
-                id={classes.username + props.getUID()}
+                id={'username-' + props.getUID()}
                 label={'Username'}
                 placeholder={'Enter your username'}
                 margin={'normal'}
                 inputRef={username => this.username = username}
-                type={'text'}
+                inputProps={{
+                  type: 'text'
+                }}
               />
               <TextField
                 required
-                id={classes.password + props.getUID()}
+                id={'password-' + props.getUID()}
                 label={'Password'}
                 placeholder={'Enter your password'}
                 margin={'normal'}
                 inputRef={password => this.password = password}
-                type={'password'}
+                inputProps={{
+                  // Warning: Extra attributes from the server: style
+                  // Unresolved
+                  type: 'password'
+                }}
               />
               <Button type={'submit'} className={classes.button} fullWidth color={'primary'} variant={'contained'} disabled={props.auth.isRequesting}>
                 {props.auth.isRequesting ? (

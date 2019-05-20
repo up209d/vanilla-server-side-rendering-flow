@@ -1,5 +1,7 @@
 // Babel Polyfill for all dependencies importing
-require('@babel/polyfill');
+// require('@babel/polyfill');
+require('core-js/stable');
+require('regenerator-runtime/runtime');
 
 // Require Global CSS (For Client Only)
 require('scss/app.scss');
@@ -26,8 +28,15 @@ const store = storeGenerator({
 // React
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { AppContainer, hot, setConfig } from 'react-hot-loader';
-setConfig({ logLevel: 'debug' });
+// import ReactDOM from '@hot-loader/react-dom';
+import { AppContainer, setConfig } from 'react-hot-loader';
+
+// Dont import hot if you are not gonna use that
+// import { hot } from 'react-hot-loader/root';
+
+setConfig({
+  logLevel: 'debug'
+});
 
 // Material UI
 // const createGenerateClassName = require('@material-ui/core/styles').createGenerateClassName;
@@ -59,6 +68,7 @@ const DOMRenderer = (Component) => {
 };
 
 // FOR HOT MODULE REPLACEMENT
+// console.log(module.hot);
 if (module.hot) {
   // Whenever a new version of App.js is available
   module.hot.accept('js/router', function () {

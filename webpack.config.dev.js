@@ -34,7 +34,9 @@ const webpackConfig = {
       './client/client.js'
     ],
     vendorBundle: [
-      '@babel/polyfill',
+      // '@babel/polyfill',
+      'core-js/stable',
+      'regenerator-runtime/runtime',
       './src/js/vendors/index.js'
     ]
   },
@@ -200,7 +202,7 @@ const webpackConfig = {
                 loader: 'css-loader',
                 options: {
                   sourceMap: true,
-                  importLoaders: 2
+                  importLoaders: 1
                 }
               },
               {

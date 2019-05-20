@@ -45,7 +45,9 @@ var babelConfig = JSON.parse(_fs.default.readFileSync('.babelrc')); // Babel Reg
 
 (0, _register.default)(babelConfig); // Babel Polyfill for all dependencies importing
 
-require('@babel/polyfill'); // BASE PATH OF APP
+// require('@babel/polyfill');
+require('core-js/stable');
+require('regenerator-runtime/runtime');
 
 
 var compiler = (0, _webpack.default)(_webpackConfig.default); // EXPRESS SERVER

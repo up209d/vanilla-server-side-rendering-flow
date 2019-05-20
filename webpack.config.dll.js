@@ -12,7 +12,9 @@ export default {
       '@material-ui/core',
       '@material-ui/icons',
       'axios',
-      '@babel/polyfill',
+      // '@babel/polyfill',
+      'core-js/stable',
+      'regenerator-runtime/runtime',
       '@babel/register',
       'history',
       'jss',
@@ -21,7 +23,10 @@ export default {
       'react',
       'react-dom',
       'react-draggable',
-      'react-hot-loader',
+      // Include it here will cause warning Hot Module Replacement is disable
+      // It is easy to understand that react-hot-loader when be included here gonna run at very early state
+      // When HMR is not ready hence warnings
+      // 'react-hot-loader',
       'react-jss',
       'react-jss-hmr',
       'react-motion',

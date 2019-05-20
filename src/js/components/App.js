@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 
 import {
   Grid,
@@ -20,16 +20,31 @@ import routeConfig from 'js/routeConfig';
 
 import utils from 'js/utils';
 
-class ScrollToTop extends React.Component {
-  componentDidUpdate(prevProps) {
-    if (this.props.location !== prevProps.location) {
-      window.scrollTo(0, 0)
+const ScrollToTop = props => {
+  useEffect(() => {
+    // Reset Scroll To Top
+    window.scrollTo(0, 0);
+    console.log('Location changed: ', props.location);
+
+    return () => {
+      // ComponentWillUnmount
+      console.log('Component Will Unmount');
     }
-  }
-  render() {
-    return null;
-  }
+  },[props.location]);
+
+  return null;
 }
+
+// class ScrollToTop extends React.Component {
+//   componentDidUpdate(prevProps) {
+//     if (this.props.location !== prevProps.location) {
+//       window.scrollTo(0, 0)
+//     }
+//   }
+//   render() {
+//     return null;
+//   }
+// }
 
 class App extends React.Component {
   state = {
