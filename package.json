@@ -36,7 +36,9 @@
   ],
   "author": "UP",
   "license": "ISC",
-  "dependencies": {},
+  "dependencies": {
+    "eslint-plugin-react-hooks": "^1.6.0"
+  },
   "devDependencies": {
     "@babel/cli": "^7.4.4",
     "@babel/core": "^7.4.4",

@@ -11,7 +11,8 @@
   },
   "plugins": [
     "babel",
-    "react"
+    "react",
+    "react-hooks"
   ],
   "env": {
     "es6": true,
@@ -22,6 +23,8 @@
     "quotes": [
       2,
       "single"
-    ]
+    ],
+    "react-hooks/rules-of-hooks": "error", // Checks rules of Hooks
+    "react-hooks/exhaustive-deps": "warn" // Checks effect dependencies
   }
 }

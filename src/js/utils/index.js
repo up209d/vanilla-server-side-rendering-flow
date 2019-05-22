@@ -9,6 +9,7 @@ import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router-dom';
 
 const utils = {
+  axios,
   generateUID: function() {
     let counter = 0;
     return function(prefix) {
