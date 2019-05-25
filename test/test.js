@@ -1,3 +1,3 @@
-var polyfill = require('@babel/polyfill');
-
-console.log('HELLO WORLD',polyfill);
+test('Just a test', ()=>{
+ expect(true).toEqual(true);
+});
