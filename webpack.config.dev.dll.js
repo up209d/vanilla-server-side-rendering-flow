@@ -6,12 +6,14 @@ import AddAssetHtmlPlugin from 'add-asset-html-webpack-plugin';
 
 import webpackConfig from './webpack.config.dev';
 
+const manifestPath = glob.sync(path.resolve(__dirname + '/lib/*_manifest.json'))[0];
+
 export default {
   ...webpackConfig,
   plugins: [
     new webpack.DllReferencePlugin({
       context: '.',
-      manifest: require(glob.sync(path.resolve(__dirname + '/lib/*_manifest.json'))[0])
+      manifest: manifestPath ? require(glob.sync(path.resolve(__dirname + '/lib/*_manifest.json'))[0]) : ''
     }),
     ...webpackConfig.plugins,
     new AddAssetHtmlPlugin([
